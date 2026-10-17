@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>OBSIDIAN // V3</title>
+<style>
+  :root {
+    --bg: #050506;
+    --card: #111113;
+    --surface: #1a1a1e;
+    --border: #26262b;
+    --text: #fafafa;
+    --muted: #71717a;
+    --accent: #ccff00;
+    --bulk: #ccff00;
+    --cut: #00f0ff;
+    --top-tag: #ff3366;
+    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    --font-mono: "SF Mono", "JetBrains Mono", "Roboto Mono", monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    padding-bottom: 110px;
+    max-width: 460px;
+    margin: 0 auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(5, 5, 6, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .logo-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+  }
+
+  .week-badge {
+    font-family: var(--font-mono);
+    font-weight: 900;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+
+  .next-week-btn {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .next-week-btn:active {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .phase-pill {
+    display: flex;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 2px;
+  }
+
+  .phase-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 99px;
+    cursor: pointer;
+  }
+
+  .phase-btn.active {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .macro-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 7px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .macro-bar .kcal {
+    color: var(--accent);
+    font-weight: 900;
+  }
+
+  /* Day Selector */
+  .day-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    padding: 12px 16px 6px;
+  }
+
+  .day-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 4px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .day-btn.active {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .day-btn .d-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    display: block;
+  }
+
+  .day-btn .d-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-top: 2px;
+    display: block;
+  }
+
+  .day-btn.active .d-title {
+    color: var(--accent);
+  }
+
+  .day-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin: 3px auto 0;
+    opacity: 0;
+  }
+
+  .day-btn.all-done .day-dot {
+    opacity: 1;
+  }
+
+  /* Main Content */
+  main {
+    padding: 8px 16px;
+  }
+
+  .view-pane {
+    display: none;
+  }
+  .view-pane.active {
+    display: block;
+  }
+
+  /* Warmup Pill */
+  .warmup-bar {
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 11px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .warmup-bar.done {
+    border-style: solid;
+    border-color: rgba(204, 255, 0, 0.35);
+    opacity: 0.65;
+  }
+
+  .warmup-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+
+  .warmup-sub {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .check-box {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.85rem;
+    color: #000;
+  }
+
+  .warmup-bar.done .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* Exercise Card */
+  .ex-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 15px;
+    margin-bottom: 12px;
+  }
+
+  .ex-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .ex-name {
+    font-size: 1.02rem;
+    font-weight: 800;
+  }
+
+  .e1rm-badge {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--accent);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  /* Set Table */
+  .set-header {
+    display: grid;
+    grid-template-columns: 50px 64px 1fr 1fr 42px;
+    gap: 6px;
+    padding: 0 2px 6px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .set-header span:first-child {
+    text-align: left;
+  }
+
+  .set-row {
+    display: grid;
+    grid-template-columns: 50px 64px 1fr 1fr 42px;
+    gap: 6px;
+    align-items: center;
+    padding: 5px 2px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+  }
+
+  .set-row.done {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .set-tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 6px 4px;
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--muted);
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+  }
+
+  .set-tag.top {
+    background: rgba(255, 51, 102, 0.15);
+    color: var(--top-tag);
+    border-color: rgba(255, 51, 102, 0.4);
+  }
+
+  .set-tag.back {
+    background: rgba(0, 240, 255, 0.1);
+    color: #00f0ff;
+    border-color: rgba(0, 240, 255, 0.25);
+  }
+
+  .prev-col {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 7px 2px;
+    border-radius: 6px;
+  }
+
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .set-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 800;
+    padding: 8px 4px;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .set-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .delta-pill {
+    position: absolute;
+    right: 4px;
+    top: -7px;
+    background: var(--accent);
+    color: #000;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 900;
+    padding: 1px 4px;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  .delta-pill.pr {
+    background: var(--top-tag);
+    color: #fff;
+  }
+
+  .set-check {
+    width: 42px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .set-row.done .set-check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  .card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .mini-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 5px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .finish-day-btn {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 900;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 4px;
+    margin-bottom: 16px;
+  }
+
+  .finish-day-btn:active {
+    background: var(--accent);
+    color: #000;
+  }
+
+  /* Bottom Bar */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 460px;
+    background: rgba(10, 10, 12, 0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    padding: 10px 16px 14px;
+    z-index: 50;
+  }
+
+  .timer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .timer-num {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--accent);
+  }
+
+  .timer-btns {
+    display: flex;
+    gap: 6px;
+  }
+
+  .t-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .nav-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .nav-tab {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 6px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .nav-tab.active {
+    background: var(--surface);
+    color: var(--accent);
+  }
+
+  /* Plate Modal */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal.show {
+    display: flex;
+  }
+  .modal-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 380px;
+    padding: 18px;
+  }
+  .plate-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin: 16px 0;
+    padding: 18px;
+    background: var(--bg);
+    border-radius: 12px;
+  }
+  .bar-sleeve {
+    height: 10px;
+    width: 32px;
+    background: #52525b;
+  }
+  .pl {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: #000;
+    border-radius: 3px;
+    padding: 0 5px;
+  }
+  .pl-20 { height: 68px; background: #3b82f6; color: #fff; }
+  .pl-15 { height: 60px; background: #eab308; }
+  .pl-10 { height: 52px; background: #22c55e; }
+  .pl-5  { height: 42px; background: #fafafa; }
+  .pl-2_5{ height: 34px; background: #ef4444; color: #fff; }
+  .pl-1_25{height: 26px; background: #a855f7; color: #fff; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo-group">
+      <div class="logo-dot"></div>
+      <span class="week-badge" id="weekLabel">WEEK 1</span>
+      <button class="next-week-btn" onclick="advanceNextWeek()">推進至下週 ➔</button>
+    </div>
+    <div class="phase-pill">
+      <button class="phase-btn active" id="btnBulk" onclick="setPhase('bulk')">增肌</button>
+      <button class="phase-btn" id="btnCut" onclick="setPhase('cut')">減脂</button>
+    </div>
+  </div>
+  <div class="macro-bar" id="macroBar"></div>
+</header>
+
+<div class="day-strip" id="dayStrip"></div>
+
+<main>
+  <!-- WORKOUT VIEW -->
+  <div id="paneWorkout" class="view-pane active">
+    <div id="workoutList"></div>
+    <button class="finish-day-btn" onclick="finishDaySession()">✓ 結算今日訓練（轉為下週計算基準）</button>
+  </div>
+
+  <!-- STATS & HISTORY VIEW -->
+  <div id="paneStats" class="view-pane">
+    <div class="ex-card">
+      <div class="ex-top">
+        <span class="ex-name">空腹體重追蹤 (183cm)</span>
+        <span class="e1rm-badge">基準 79.6kg</span>
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:12px;">
+        <input type="number" step="0.1" id="bwIn" class="set-input" placeholder="今日體重 (kg)" style="text-align:left; padding-left:12px;">
+        <button class="set-check" style="width:80px; background:var(--accent); color:#000;" onclick="addBw()">紀錄</button>
+      </div>
+      <div id="bwList" style="font-family:var(--font-mono); font-size:0.8rem; color:var(--muted);"></div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-top">
+        <span class="ex-name">跨週歷史推進紀錄</span>
+      </div>
+      <div id="weekHistoryList" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--muted);"></div>
+    </div>
+  </div>
+
+  <!-- JSON EDITOR VIEW -->
+  <div id="paneEdit" class="view-pane">
+    <div class="ex-card">
+      <div class="ex-top">
+        <span class="ex-name">課表結構編輯</span>
+      </div>
+      <textarea id="jsonBox" style="width:100%; height:260px; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:10px; padding:10px; font-family:var(--font-mono); font-size:0.75rem; margin-bottom:10px;"></textarea>
+      <div style="display:flex; gap:8px;">
+        <button class="set-check" style="flex:1; background:var(--accent); color:#000; font-size:0.85rem;" onclick="saveJson()">儲存課表</button>
+        <button class="set-check" style="width:90px; font-size:0.8rem;" onclick="resetAll()">重置預設</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- PLATE CALCULATOR MODAL -->
+<div class="modal" id="plateModal" onclick="this.classList.remove('show')">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="ex-top">
+      <span class="ex-name" id="pmTitle">槓片配重</span>
+      <span class="e1rm-badge" id="pmSub"></span>
+    </div>
+    <div class="plate-box" id="pmVisual"></div>
+    <div id="pmText" style="font-family:var(--font-mono); font-size:0.82rem; text-align:center; color:var(--text);"></div>
+  </div>
+</div>
+
+<!-- BOTTOM DOCK -->
+<div class="bottom-bar">
+  <div class="timer-row">
+    <span class="timer-num" id="clock">00:00</span>
+    <div class="timer-btns">
+      <button class="t-chip" onclick="runTimer(60)">60s</button>
+      <button class="t-chip" onclick="runTimer(90)">90s</button>
+      <button class="t-chip" onclick="runTimer(180)">3m</button>
+      <button class="t-chip" onclick="stopTimer()" style="color:#ef4444;">✕</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="nav-tab active" id="tabW" onclick="goTab('W')">訓練</button>
+    <button class="nav-tab" id="tabS" onclick="goTab('S')">數據</button>
+    <button class="nav-tab" id="tabE" onclick="goTab('E')">課表</button>
+  </div>
+</div>
+
+<script>
+const DEFAULT_DATA = {
+  week: 1,
+  phase: 'bulk',
+  dayIdx: 0,
+  bwLogs: [{ date: '10/14', w: 79.6 }],
+  weekArchives: [],
+  days: [
+    {
+      name: '週一', title: '功能腿', isBall: false,
+      warmup: { name: '高腳杯深蹲停留 + 髖 90/90', sub: '2組 × 8次', done: false },
+      exercises: [
+        {
+          name: '槓鈴背深蹲', isBar: true, inc: 2.5, rest: 180, targetMax: 6,
+          sets: [
+            { tag: 'S', prevW: 75, prevR: 6, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 87.5, prevR: 4, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 77.5, prevR: 6, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 75, prevR: 6, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '羅馬尼亞硬舉 (RDL)', isBar: true, inc: 2.5, rest: 120, targetMax: 10,
+          sets: [
+            { tag: 'S', prevW: 65, prevR: 8, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 75, prevR: 5, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 67.5, prevR: 8, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 67.5, prevR: 8, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '器械/滑輪髖外展', isBar: false, inc: 2.0, rest: 60, targetMax: 15,
+          sets: [
+            { tag: 'S', prevW: 45, prevR: 15, w: null, r: null, done: false },
+            { tag: 'S', prevW: 45, prevR: 14, w: null, r: null, done: false },
+            { tag: 'S', prevW: 45, prevR: 14, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '器械/滑輪髖內收', isBar: false, inc: 2.0, rest: 60, targetMax: 15,
+          sets: [
+            { tag: 'S', prevW: 45, prevR: 15, w: null, r: null, done: false },
+            { tag: 'S', prevW: 45, prevR: 15, w: null, r: null, done: false },
+            { tag: 'S', prevW: 45, prevR: 14, w: null, r: null, done: false }
+          ]
+        }
+      ]
+    },
+    {
+      name: '週二', title: '上肢推', isBall: false,
+      warmup: { name: '彈力帶肩外旋 + 肩胛引伸', sub: '2組 × 15次', done: false },
+      exercises: [
+        {
+          name: '平板槓鈴臥推', isBar: true, inc: 2.5, rest: 180, targetMax: 6,
+          sets: [
+            { tag: 'S', prevW: 60, prevR: 6, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 70, prevR: 4, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 62.5, prevR: 6, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 60, prevR: 6, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '坐姿啞鈴肩推', isBar: false, inc: 2.0, rest: 120, targetMax: 10,
+          sets: [
+            { tag: 'S', prevW: 20, prevR: 9, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 24, prevR: 5, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 20, prevR: 9, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 20, prevR: 8, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '上斜啞鈴臥推', isBar: false, inc: 2.0, rest: 90, targetMax: 10,
+          sets: [
+            { tag: 'S', prevW: 22, prevR: 10, w: null, r: null, done: false },
+            { tag: 'S', prevW: 22, prevR: 9, w: null, r: null, done: false },
+            { tag: 'S', prevW: 22, prevR: 8, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '啞鈴側平舉', isBar: false, inc: 1.0, rest: 60, targetMax: 15,
+          sets: [
+            { tag: 'S', prevW: 10, prevR: 15, w: null, r: null, done: false },
+            { tag: 'S', prevW: 10, prevR: 15, w: null, r: null, done: false },
+            { tag: 'S', prevW: 10, prevR: 14, w: null, r: null, done: false },
+            { tag: 'S', prevW: 10, prevR: 12, w: null, r: null, done: false }
+          ]
+        }
+      ]
+    },
+    {
+      name: '週三', title: '上肢拉', isBall: false,
+      warmup: { name: '單槓懸吊 + 肩胛下壓啟動', sub: '2組 × 10次', done: false },
+      exercises: [
+        {
+          name: '引體向上 / 滑輪下拉', isBar: false, inc: 2.5, rest: 150, targetMax: 10,
+          sets: [
+            { tag: 'S', prevW: 60, prevR: 10, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 70, prevR: 5, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 60, prevR: 9, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 60, prevR: 8, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '胸靠墊划船 / 單臂划船', isBar: false, inc: 2.0, rest: 120, targetMax: 10,
+          sets: [
+            { tag: 'S', prevW: 26, prevR: 10, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 30, prevR: 5, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 26, prevR: 10, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 26, prevR: 9, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '繩索面拉 (後肩)', isBar: false, inc: 2.5, rest: 60, targetMax: 15,
+          sets: [
+            { tag: 'S', prevW: 25, prevR: 15, w: null, r: null, done: false },
+            { tag: 'S', prevW: 25, prevR: 15, w: null, r: null, done: false },
+            { tag: 'S', prevW: 25, prevR: 14, w: null, r: null, done: false },
+            { tag: 'S', prevW: 25, prevR: 14, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '上斜啞鈴彎舉', isBar: false, inc: 1.0, rest: 60, targetMax: 12,
+          sets: [
+            { tag: 'S', prevW: 12, prevR: 12, w: null, r: null, done: false },
+            { tag: 'S', prevW: 12, prevR: 11, w: null, r: null, done: false },
+            { tag: 'S', prevW: 12, prevR: 10, w: null, r: null, done: false }
+          ]
+        }
+      ]
+    },
+    {
+      name: '週四', title: '籃球日', isBall: true,
+      warmup: { name: '動態馬克操 + 腳踝喚醒', sub: '10分鐘', done: false },
+      exercises: [
+        {
+          name: '實戰籃球 (分鐘)', isBar: false, inc: 0, rest: 0, targetMax: 60,
+          sets: [
+            { tag: 'S', prevW: 1, prevR: 60, w: null, r: null, done: false }
+          ]
+        }
+      ]
+    },
+    {
+      name: '週五', title: '補強+跑', isBall: false,
+      warmup: { name: '彈力帶繞肩 + 爆發伏地挺身', sub: '2組 × 10次', done: false },
+      exercises: [
+        {
+          name: '窄握槓鈴臥推', isBar: true, inc: 2.5, rest: 120, targetMax: 8,
+          sets: [
+            { tag: 'S', prevW: 52.5, prevR: 8, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 62.5, prevR: 4, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 55, prevR: 8, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 52.5, prevR: 8, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '滑輪單臂側平舉', isBar: false, inc: 1.25, rest: 60, targetMax: 15,
+          sets: [
+            { tag: 'S', prevW: 7.5, prevR: 15, w: null, r: null, done: false },
+            { tag: 'S', prevW: 7.5, prevR: 15, w: null, r: null, done: false },
+            { tag: 'S', prevW: 7.5, prevR: 14, w: null, r: null, done: false },
+            { tag: 'S', prevW: 7.5, prevR: 12, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '反握滑輪下拉', isBar: false, inc: 2.5, rest: 90, targetMax: 12,
+          sets: [
+            { tag: 'S', prevW: 55, prevR: 12, w: null, r: null, done: false },
+            { tag: 'S', prevW: 55, prevR: 11, w: null, r: null, done: false },
+            { tag: 'S', prevW: 55, prevR: 10, w: null, r: null, done: false }
+          ]
+        },
+        {
+          name: '2 公里節奏跑 (km / 分鐘)', isBar: false, inc: 0, rest: 0, targetMax: 10,
+          sets: [
+            { tag: 'TOP', prevW: 2.0, prevR: 10, w: null, r: null, done: false }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+let state = JSON.parse(localStorage.getItem('OBSIDIAN_V3_STATE')) || DEFAULT_DATA;
+
+function save() {
+  localStorage.setItem('OBSIDIAN_V3_STATE', JSON.stringify(state));
+}
+
+// Compute Today's Target from Locked Previous Week Data (prevW, prevR)
+function getSetSuggestion(ex, s, phase) {
+  const lastW = parseFloat(s.prevW) || 0;
+  const lastR = parseInt(s.prevR) || 0;
+
+  if (ex.inc === 0) {
+    return { w: lastW, r: lastR, badge: '' };
+  }
+
+  if (phase === 'cut') {
+    return { w: lastW, r: lastR, badge: '保強' };
+  }
+
+  // BULK PHASE
+  if (s.tag === 'TOP') {
+    // Heavy Top Set (<6 reps): If hit 4 or 5 reps last week -> +weight! Else -> +1 rep
+    if (lastR >= 4) {
+      return { w: +(lastW + ex.inc).toFixed(2), r: 3, badge: `+${ex.inc}kg` };
+    } else {
+      return { w: lastW, r: lastR + 1, badge: '+1下' };
+    }
+  } else {
+    // Normal or Back-off Set
+    if (lastR >= ex.targetMax) {
+      const resetReps = Math.max(5, ex.targetMax - 2);
+      return { w: +(lastW + ex.inc).toFixed(2), r: resetReps, badge: `+${ex.inc}kg` };
+    } else {
+      return { w: lastW, r: lastR + 1, badge: '+1下' };
+    }
+  }
+}
+
+function getBest1RM(ex) {
+  if (ex.inc === 0) return null;
+  let max1rm = 0;
+  ex.sets.forEach(s => {
+    const w = s.done && s.w !== null ? parseFloat(s.w) : parseFloat(s.prevW) || 0;
+    const r = s.done && s.r !== null ? parseInt(s.r) : parseInt(s.prevR) || 0;
+    const est = w * (1 + r / 30);
+    if (est > max1rm) max1rm = est;
+  });
+  return Math.round(max1rm);
+}
+
+function renderHeader() {
+  const root = document.documentElement;
+  const isBulk = state.phase === 'bulk';
+  root.style.setProperty('--accent', isBulk ? 'var(--bulk)' : 'var(--cut)');
+  document.getElementById('btnBulk').classList.toggle('active', isBulk);
+  document.getElementById('btnCut').classList.toggle('active', !isBulk);
+  document.getElementById('weekLabel').innerText = `WEEK ${state.week}`;
+
+  const day = state.days[state.dayIdx];
+  let kcal = isBulk ? (day.isBall ? 3300 : 3050) : (day.isBall ? 2600 : 2350);
+  let p = isBulk ? 155 : 175;
+  let c = isBulk ? (day.isBall ? 490 : 425) : (day.isBall ? 280 : 215);
+  let f = isBulk ? 80 : 65;
+
+  document.getElementById('macroBar').innerHTML = `
+    <span class="kcal">${kcal} kcal</span>
+    <span>P ${p}g</span>
+    <span>C ${c}g</span>
+    <span>F ${f}g</span>
+  `;
+}
+
+function renderDays() {
+  document.getElementById('dayStrip').innerHTML = state.days.map((d, i) => {
+    const allDone = d.exercises.every(ex => ex.sets.every(s => s.done));
+    return `
+      <div class="day-btn ${i === state.dayIdx ? 'active' : ''} ${allDone ? 'all-done' : ''}" onclick="selectDay(${i})">
+        <span class="d-label">${d.name}</span>
+        <span class="d-title">${d.title}</span>
+        <div class="day-dot"></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderWorkout() {
+  const day = state.days[state.dayIdx];
+  let html = `
+    <div class="warmup-bar ${day.warmup.done ? 'done' : ''}" onclick="toggleWarmup()">
+      <div>
+        <div class="warmup-title">🔥 ${day.warmup.name}</div>
+        <div class="warmup-sub">${day.warmup.sub}</div>
+      </div>
+      <div class="check-box">${day.warmup.done ? '✓' : ''}</div>
+    </div>
+  `;
+
+  html += day.exercises.map((ex, exIdx) => {
+    const best1rm = getBest1RM(ex);
+    const maxWeightSet = ex.sets.reduce((m, s) => {
+      const sug = getSetSuggestion(ex, s, state.phase);
+      const curW = s.w !== null ? s.w : sug.w;
+      return Math.max(m, curW);
+    }, 0);
+
+    const rowsHtml = ex.sets.map((s, sIdx) => {
+      const sug = getSetSuggestion(ex, s, state.phase);
+      const dispW = s.w !== null ? s.w : sug.w;
+      const dispR = s.r !== null ? s.r : sug.r;
+
+      let tagClass = '';
+      let tagLabel = `S${sIdx + 1}`;
+      if (s.tag === 'TOP') { tagClass = 'top'; tagLabel = 'TOP'; }
+      else if (s.tag === 'BACK') { tagClass = 'back'; tagLabel = 'BACK'; }
+
+      const isWeightUp = sug.badge.includes('kg');
+      const isRepUp = sug.badge.includes('下');
+
+      return `
+        <div class="set-row ${s.done ? 'done' : ''}">
+          <div class="set-tag ${tagClass}" onclick="cycleSetTag(${exIdx}, ${sIdx})">${tagLabel}</div>
+          <div class="prev-col">${s.prevW}×${s.prevR}</div>
+          <div class="input-wrap">
+            <input type="number" step="0.5" class="set-input" id="w_${exIdx}_${sIdx}" value="${dispW}" onchange="liveEditSet(${exIdx}, ${sIdx})">
+            ${!s.done && isWeightUp ? `<span class="delta-pill pr">${sug.badge}</span>` : ''}
+          </div>
+          <div class="input-wrap">
+            <input type="number" class="set-input" id="r_${exIdx}_${sIdx}" value="${dispR}" onchange="liveEditSet(${exIdx}, ${sIdx})">
+            ${!s.done && isRepUp ? `<span class="delta-pill">${sug.badge}</span>` : ''}
+          </div>
+          <button class="set-check" onclick="completeSet(${exIdx}, ${sIdx})">✓</button>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="ex-card">
+        <div class="ex-top">
+          <span class="ex-name">${ex.name}</span>
+          ${best1rm ? `<span class="e1rm-badge">1RM ${best1rm}kg</span>` : ''}
+        </div>
+        <div class="set-header">
+          <span>組別</span>
+          <span>上週</span>
+          <span>${ex.inc === 0 ? '距離' : '本週 KG'}</span>
+          <span>${ex.inc === 0 ? '分鐘' : '本週下數'}</span>
+          <span>完成</span>
+        </div>
+        ${rowsHtml}
+        <div class="card-actions">
+          <div style="display:flex; gap:6px;">
+            <button class="mini-btn" onclick="addSet(${exIdx})">+ 組</button>
+            <button class="mini-btn" onclick="removeSet(${exIdx})">- 組</button>
+          </div>
+          ${ex.isBar ? `<button class="mini-btn" style="color:var(--accent); border-color:rgba(204,255,0,0.3);" onclick="openPlates('${ex.name}', ${maxWeightSet})">槓片 (${maxWeightSet}kg)</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('workoutList').innerHTML = html;
+}
+
+function liveEditSet(exIdx, sIdx) {
+  const s = state.days[state.dayIdx].exercises[exIdx].sets[sIdx];
+  const wVal = parseFloat(document.getElementById(`w_${exIdx}_${sIdx}`).value);
+  const rVal = parseInt(document.getElementById(`r_${exIdx}_${sIdx}`).value);
+  if (!isNaN(wVal)) s.w = wVal;
+  if (!isNaN(rVal)) s.r = rVal;
+  save();
+}
+
+function completeSet(exIdx, sIdx) {
+  const ex = state.days[state.dayIdx].exercises[exIdx];
+  const s = ex.sets[sIdx];
+  const wVal = parseFloat(document.getElementById(`w_${exIdx}_${sIdx}`).value);
+  const rVal = parseInt(document.getElementById(`r_${exIdx}_${sIdx}`).value);
+
+  if (!isNaN(wVal)) s.w = wVal;
+  if (!isNaN(rVal)) s.r = rVal;
+  s.done = !s.done;
+
+  save();
+  renderDays();
+  renderWorkout();
+
+  if (s.done && ex.rest > 0) {
+    runTimer(ex.rest);
+  }
+}
+
+// Roll over ONLY current day's completed sets into prevW / prevR
+function finishDaySession() {
+  const day = state.days[state.dayIdx];
+  day.warmup.done = false;
+  day.exercises.forEach(ex => {
+    ex.sets.forEach(s => {
+      const sug = getSetSuggestion(ex, s, state.phase);
+      const actualW = s.w !== null ? s.w : sug.w;
+      const actualR = s.r !== null ? s.r : sug.r;
+      if (s.done) {
+        s.prevW = actualW;
+        s.prevR = actualR;
+      }
+      s.w = null;
+      s.r = null;
+      s.done = false;
+    });
+  });
+  save();
+  renderAll();
+  alert(`已結算「${day.name}・${day.title}」！今日數據已轉為下週「上週基準」，並自動推算好下週新目標。`);
+}
+
+// Roll over ALL days to Next Week and increment Week counter
+function advanceNextWeek() {
+  let completedCount = 0;
+  state.days.forEach(d => {
+    d.warmup.done = false;
+    d.exercises.forEach(ex => {
+      ex.sets.forEach(s => {
+        const sug = getSetSuggestion(ex, s, state.phase);
+        const actualW = s.w !== null ? s.w : sug.w;
+        const actualR = s.r !== null ? s.r : sug.r;
+        if (s.done) {
+          s.prevW = actualW;
+          s.prevR = actualR;
+          completedCount++;
+        }
+        s.w = null;
+        s.r = null;
+        s.done = false;
+      });
+    });
+  });
+
+  const now = new Date();
+  state.weekArchives.unshift({
+    week: state.week,
+    date: `${now.getMonth()+1}/${now.getDate()}`,
+    setsDone: completedCount
+  });
+
+  state.week += 1;
+  save();
+  renderAll();
+}
+
+function cycleSetTag(exIdx, sIdx) {
+  const s = state.days[state.dayIdx].exercises[exIdx].sets[sIdx];
+  const order = ['S', 'TOP', 'BACK'];
+  s.tag = order[(order.indexOf(s.tag) + 1) % order.length];
+  s.w = null;
+  s.r = null;
+  save();
+  renderWorkout();
+}
+
+function addSet(exIdx) {
+  const sets = state.days[state.dayIdx].exercises[exIdx].sets;
+  const last = sets[sets.length - 1] || { tag: 'S', prevW: 20, prevR: 8 };
+  sets.push({ tag: 'BACK', prevW: last.prevW, prevR: last.prevR, w: null, r: null, done: false });
+  save();
+  renderWorkout();
+}
+
+function removeSet(exIdx) {
+  const sets = state.days[state.dayIdx].exercises[exIdx].sets;
+  if (sets.length > 1) {
+    sets.pop();
+    save();
+    renderWorkout();
+  }
+}
+
+function toggleWarmup() {
+  const w = state.days[state.dayIdx].warmup;
+  w.done = !w.done;
+  save();
+  renderWorkout();
+}
+
+function setPhase(p) {
+  state.phase = p;
+  save();
+  renderAll();
+}
+
+function selectDay(i) {
+  state.dayIdx = i;
+  save();
+  renderAll();
+}
+
+// Plate Modal
+function openPlates(name, weight) {
+  document.getElementById('pmTitle').innerText = name;
+  document.getElementById('pmSub').innerText = `${weight} kg`;
+  const box = document.getElementById('pmVisual');
+  const txt = document.getElementById('pmText');
+
+  if (weight <= 20) {
+    box.innerHTML = `<div class="bar-sleeve"></div><span>空槓 20kg</span>`;
+    txt.innerText = '不需加槓片';
+  } else {
+    let side = (weight - 20) / 2;
+    const avail = [20, 15, 10, 5, 2.5, 1.25];
+    const picked = [];
+    for (let p of avail) {
+      while (side >= p - 0.001) {
+        picked.push(p);
+        side -= p;
+      }
+    }
+    box.innerHTML = `<div class="bar-sleeve"></div>` + picked.map(p => {
+      const cls = 'pl-' + String(p).replace('.', '_');
+      return `<div class="pl ${cls}">${p}</div>`;
+    }).join('');
+    txt.innerText = `單邊掛載：${picked.join(' + ')} kg`;
+  }
+  document.getElementById('plateModal').classList.add('show');
+}
+
+// Timer
+let tInt = null;
+let tSec = 0;
+function drawClock() {
+  const m = String(Math.floor(tSec / 60)).padStart(2, '0');
+  const s = String(tSec % 60).padStart(2, '0');
+  document.getElementById('clock').innerText = `${m}:${s}`;
+}
+function runTimer(sec) {
+  clearInterval(tInt);
+  tSec = sec;
+  drawClock();
+  tInt = setInterval(() => {
+    tSec--;
+    drawClock();
+    if (tSec <= 0) {
+      clearInterval(tInt);
+      document.getElementById('clock').innerText = 'GO!';
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    }
+  }, 1000);
+}
+function stopTimer() {
+  clearInterval(tInt);
+  tSec = 0;
+  drawClock();
+}
+
+// Stats & History
+function addBw() {
+  const v = parseFloat(document.getElementById('bwIn').value);
+  if (isNaN(v) || v < 40) return;
+  const d = new Date();
+  state.bwLogs.unshift({ date: `${d.getMonth()+1}/${d.getDate()}`, w: v });
+  document.getElementById('bwIn').value = '';
+  save();
+  renderStats();
+}
+
+function renderStats() {
+  const el = document.getElementById('bwList');
+  el.innerHTML = state.bwLogs.slice(0, 8).map(x => {
+    const diff = +(x.w - 79.6).toFixed(1);
+    const sign = diff > 0 ? `+${diff}` : diff;
+    return `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #222;">
+      <span>${x.date}</span>
+      <span style="color:var(--text); font-weight:700;">${x.w} kg <span style="color:var(--accent); font-size:0.75rem;">(${sign})</span></span>
+    </div>`;
+  }).join('');
+
+  const histEl = document.getElementById('weekHistoryList');
+  if (!state.weekArchives || !state.weekArchives.length) {
+    histEl.innerHTML = '尚未結算週次（點擊頂部「推進至下週」即可歸檔）';
+  } else {
+    histEl.innerHTML = state.weekArchives.map(a => `
+      <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #222;">
+        <span>WEEK ${a.week} (${a.date} 結算)</span>
+        <span style="color:var(--accent);">完成 ${a.setsDone} 組</span>
+      </div>
+    `).join('');
+  }
+}
+
+// Tabs & Editor
+function goTab(t) {
+  document.getElementById('paneWorkout').classList.toggle('active', t === 'W');
+  document.getElementById('paneStats').classList.toggle('active', t === 'S');
+  document.getElementById('paneEdit').classList.toggle('active', t === 'E');
+  document.getElementById('tabW').classList.toggle('active', t === 'W');
+  document.getElementById('tabS').classList.toggle('active', t === 'S');
+  document.getElementById('tabE').classList.toggle('active', t === 'E');
+  if (t === 'E') {
+    document.getElementById('jsonBox').value = JSON.stringify(state.days, null, 2);
+  }
+}
+function saveJson() {
+  try {
+    state.days = JSON.parse(document.getElementById('jsonBox').value);
+    save();
+    renderAll();
+    goTab('W');
+  } catch (e) {
+    alert('JSON 格式錯誤');
+  }
+}
+function resetAll() {
+  localStorage.removeItem('OBSIDIAN_V3_STATE');
+  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  renderAll();
+  goTab('W');
+}
+
+function renderAll() {
+  renderHeader();
+  renderDays();
+  renderWorkout();
+  renderStats();
+}
+renderAll();
+</script>
+</body>
+</html>
