@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>OBSIDIAN // V3</title>
+<title>OBSIDIAN // V3.1</title>
 <style>
   :root {
     --bg: #050506;
@@ -417,6 +417,53 @@
     color: #000;
   }
 
+  /* Self-Cue / Tips Row */
+  .tip-wrap {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 5px 10px;
+    transition: border-color 0.2s;
+  }
+
+  .tip-wrap:focus-within {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .tip-icon {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .tip-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: 0.74rem;
+    line-height: 1.4;
+    outline: none;
+  }
+
+  .tip-input:focus {
+    color: var(--text);
+  }
+
+  .tip-input::placeholder {
+    color: #52525b;
+  }
+
   .card-actions {
     display: flex;
     justify-content: space-between;
@@ -676,6 +723,26 @@
 </div>
 
 <script>
+const DEFAULT_TIPS = {
+  '槓鈴背深蹲': '核心腹內壓吸飽，膝蓋順著腳尖方向推開，第1組保留體力給TOP組',
+  '羅馬尼亞硬舉 (RDL)': '屁股往後推感受腿後拉伸，槓鈴貼緊大腿與小腿，下背絕對鎖死不圓背',
+  '器械/滑輪髖外展': '骨盆穩定貼緊椅背，頂峰停頓 1 秒感受臀中肌收縮',
+  '器械/滑輪髖內收': '離心階段放慢 2 秒，控制內收肌群張力不彈震',
+  '平板槓鈴臥推': '肩胛骨後收下壓鎖在椅面，手肘夾角約 45-60 度，腳掌踩實地面發力',
+  '坐姿啞鈴肩推': '小臂垂直地面，肋骨下壓不拱腰，啞鈴下放至耳垂高度',
+  '上斜啞鈴臥推': '椅背約 30 度最吃上胸，離心充分拉開胸大肌鎖骨部',
+  '啞鈴側平舉': '想像手肘往兩側牆壁遠推，不聳肩、不借力甩動',
+  '引體向上 / 滑輪下拉': '先做肩胛下壓再彎手肘，想像把橫桿拉向鎖骨、手肘往口袋塞',
+  '胸靠墊划船 / 單臂划船': '手肘貼近身體往後拉向髖部，專注背闊肌收縮而非二頭肌硬拉',
+  '繩索面拉 (後肩)': '繩索拉向額頭高度，末端做肩外旋張開，停留 1 秒保護旋轉肌袖',
+  '上斜啞鈴彎舉': '大臂垂直固定在身體後方，徹底拉伸二頭肌長頭',
+  '實戰籃球 (分鐘)': '今日高消耗！打球前後務必補足快碳與水分，注意落地膝髖緩衝',
+  '窄握槓鈴臥推': '與肩同寬握距，手肘貼近軀幹下放，強化三頭肌與臥推鎖定段力量',
+  '滑輪單臂側平舉': '利用纜繩底部的持續張力，動作頂峰小指微抬或維持中立皆可但別聳肩',
+  '反握滑輪下拉': '反握與肩同寬，身體微後傾 10 度，拉向胸口下緣榨乾背闊肌下緣',
+  '2 公里節奏跑 (km / 分鐘)': '維持穩定鼻吸口吐與步頻，跑完慢走 3 分鐘收操迎接週末休息'
+};
+
 const DEFAULT_DATA = {
   week: 1,
   phase: 'bulk',
@@ -689,6 +756,7 @@ const DEFAULT_DATA = {
       exercises: [
         {
           name: '槓鈴背深蹲', isBar: true, inc: 2.5, rest: 180, targetMax: 6,
+          tip: DEFAULT_TIPS['槓鈴背深蹲'],
           sets: [
             { tag: 'S', prevW: 75, prevR: 6, w: null, r: null, done: false },
             { tag: 'TOP', prevW: 87.5, prevR: 4, w: null, r: null, done: false },
@@ -698,6 +766,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '羅馬尼亞硬舉 (RDL)', isBar: true, inc: 2.5, rest: 120, targetMax: 10,
+          tip: DEFAULT_TIPS['羅馬尼亞硬舉 (RDL)'],
           sets: [
             { tag: 'S', prevW: 65, prevR: 8, w: null, r: null, done: false },
             { tag: 'TOP', prevW: 75, prevR: 5, w: null, r: null, done: false },
@@ -707,6 +776,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '器械/滑輪髖外展', isBar: false, inc: 2.0, rest: 60, targetMax: 15,
+          tip: DEFAULT_TIPS['器械/滑輪髖外展'],
           sets: [
             { tag: 'S', prevW: 45, prevR: 15, w: null, r: null, done: false },
             { tag: 'S', prevW: 45, prevR: 14, w: null, r: null, done: false },
@@ -715,6 +785,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '器械/滑輪髖內收', isBar: false, inc: 2.0, rest: 60, targetMax: 15,
+          tip: DEFAULT_TIPS['器械/滑輪髖內收'],
           sets: [
             { tag: 'S', prevW: 45, prevR: 15, w: null, r: null, done: false },
             { tag: 'S', prevW: 45, prevR: 15, w: null, r: null, done: false },
@@ -729,6 +800,7 @@ const DEFAULT_DATA = {
       exercises: [
         {
           name: '平板槓鈴臥推', isBar: true, inc: 2.5, rest: 180, targetMax: 6,
+          tip: DEFAULT_TIPS['平板槓鈴臥推'],
           sets: [
             { tag: 'S', prevW: 60, prevR: 6, w: null, r: null, done: false },
             { tag: 'TOP', prevW: 70, prevR: 4, w: null, r: null, done: false },
@@ -738,6 +810,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '坐姿啞鈴肩推', isBar: false, inc: 2.0, rest: 120, targetMax: 10,
+          tip: DEFAULT_TIPS['坐姿啞鈴肩推'],
           sets: [
             { tag: 'S', prevW: 20, prevR: 9, w: null, r: null, done: false },
             { tag: 'TOP', prevW: 24, prevR: 5, w: null, r: null, done: false },
@@ -747,6 +820,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '上斜啞鈴臥推', isBar: false, inc: 2.0, rest: 90, targetMax: 10,
+          tip: DEFAULT_TIPS['上斜啞鈴臥推'],
           sets: [
             { tag: 'S', prevW: 22, prevR: 10, w: null, r: null, done: false },
             { tag: 'S', prevW: 22, prevR: 9, w: null, r: null, done: false },
@@ -755,6 +829,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '啞鈴側平舉', isBar: false, inc: 1.0, rest: 60, targetMax: 15,
+          tip: DEFAULT_TIPS['啞鈴側平舉'],
           sets: [
             { tag: 'S', prevW: 10, prevR: 15, w: null, r: null, done: false },
             { tag: 'S', prevW: 10, prevR: 15, w: null, r: null, done: false },
@@ -770,6 +845,7 @@ const DEFAULT_DATA = {
       exercises: [
         {
           name: '引體向上 / 滑輪下拉', isBar: false, inc: 2.5, rest: 150, targetMax: 10,
+          tip: DEFAULT_TIPS['引體向上 / 滑輪下拉'],
           sets: [
             { tag: 'S', prevW: 60, prevR: 10, w: null, r: null, done: false },
             { tag: 'TOP', prevW: 70, prevR: 5, w: null, r: null, done: false },
@@ -779,6 +855,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '胸靠墊划船 / 單臂划船', isBar: false, inc: 2.0, rest: 120, targetMax: 10,
+          tip: DEFAULT_TIPS['胸靠墊划船 / 單臂划船'],
           sets: [
             { tag: 'S', prevW: 26, prevR: 10, w: null, r: null, done: false },
             { tag: 'TOP', prevW: 30, prevR: 5, w: null, r: null, done: false },
@@ -788,6 +865,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '繩索面拉 (後肩)', isBar: false, inc: 2.5, rest: 60, targetMax: 15,
+          tip: DEFAULT_TIPS['繩索面拉 (後肩)'],
           sets: [
             { tag: 'S', prevW: 25, prevR: 15, w: null, r: null, done: false },
             { tag: 'S', prevW: 25, prevR: 15, w: null, r: null, done: false },
@@ -797,6 +875,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '上斜啞鈴彎舉', isBar: false, inc: 1.0, rest: 60, targetMax: 12,
+          tip: DEFAULT_TIPS['上斜啞鈴彎舉'],
           sets: [
             { tag: 'S', prevW: 12, prevR: 12, w: null, r: null, done: false },
             { tag: 'S', prevW: 12, prevR: 11, w: null, r: null, done: false },
@@ -811,6 +890,7 @@ const DEFAULT_DATA = {
       exercises: [
         {
           name: '實戰籃球 (分鐘)', isBar: false, inc: 0, rest: 0, targetMax: 60,
+          tip: DEFAULT_TIPS['實戰籃球 (分鐘)'],
           sets: [
             { tag: 'S', prevW: 1, prevR: 60, w: null, r: null, done: false }
           ]
@@ -823,6 +903,7 @@ const DEFAULT_DATA = {
       exercises: [
         {
           name: '窄握槓鈴臥推', isBar: true, inc: 2.5, rest: 120, targetMax: 8,
+          tip: DEFAULT_TIPS['窄握槓鈴臥推'],
           sets: [
             { tag: 'S', prevW: 52.5, prevR: 8, w: null, r: null, done: false },
             { tag: 'TOP', prevW: 62.5, prevR: 4, w: null, r: null, done: false },
@@ -832,6 +913,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '滑輪單臂側平舉', isBar: false, inc: 1.25, rest: 60, targetMax: 15,
+          tip: DEFAULT_TIPS['滑輪單臂側平舉'],
           sets: [
             { tag: 'S', prevW: 7.5, prevR: 15, w: null, r: null, done: false },
             { tag: 'S', prevW: 7.5, prevR: 15, w: null, r: null, done: false },
@@ -841,6 +923,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '反握滑輪下拉', isBar: false, inc: 2.5, rest: 90, targetMax: 12,
+          tip: DEFAULT_TIPS['反握滑輪下拉'],
           sets: [
             { tag: 'S', prevW: 55, prevR: 12, w: null, r: null, done: false },
             { tag: 'S', prevW: 55, prevR: 11, w: null, r: null, done: false },
@@ -849,6 +932,7 @@ const DEFAULT_DATA = {
         },
         {
           name: '2 公里節奏跑 (km / 分鐘)', isBar: false, inc: 0, rest: 0, targetMax: 10,
+          tip: DEFAULT_TIPS['2 公里節奏跑 (km / 分鐘)'],
           sets: [
             { tag: 'TOP', prevW: 2.0, prevR: 10, w: null, r: null, done: false }
           ]
@@ -860,8 +944,21 @@ const DEFAULT_DATA = {
 
 let state = JSON.parse(localStorage.getItem('OBSIDIAN_V3_STATE')) || DEFAULT_DATA;
 
+// Seamless migration: if user already has V3 data in localStorage without `tip`, inject default tips automatically
+state.days.forEach(d => {
+  d.exercises.forEach(ex => {
+    if (typeof ex.tip === 'undefined') {
+      ex.tip = DEFAULT_TIPS[ex.name] || '';
+    }
+  });
+});
+
 function save() {
   localStorage.setItem('OBSIDIAN_V3_STATE', JSON.stringify(state));
+}
+
+function escapeAttr(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
 // Compute Today's Target from Locked Previous Week Data (prevW, prevR)
@@ -879,14 +976,12 @@ function getSetSuggestion(ex, s, phase) {
 
   // BULK PHASE
   if (s.tag === 'TOP') {
-    // Heavy Top Set (<6 reps): If hit 4 or 5 reps last week -> +weight! Else -> +1 rep
     if (lastR >= 4) {
       return { w: +(lastW + ex.inc).toFixed(2), r: 3, badge: `+${ex.inc}kg` };
     } else {
       return { w: lastW, r: lastR + 1, badge: '+1下' };
     }
   } else {
-    // Normal or Back-off Set
     if (lastR >= ex.targetMax) {
       const resetReps = Math.max(5, ex.targetMax - 2);
       return { w: +(lastW + ex.inc).toFixed(2), r: resetReps, badge: `+${ex.inc}kg` };
@@ -1007,6 +1102,10 @@ function renderWorkout() {
           <span>完成</span>
         </div>
         ${rowsHtml}
+        <div class="tip-wrap">
+          <span class="tip-icon">// TIP</span>
+          <input type="text" class="tip-input" value="${escapeAttr(ex.tip)}" placeholder="寫下給自己的動作提醒（如：收肩胛、沉肩、膝蓋對齊腳尖...）" oninput="updateTip(${exIdx}, this.value)">
+        </div>
         <div class="card-actions">
           <div style="display:flex; gap:6px;">
             <button class="mini-btn" onclick="addSet(${exIdx})">+ 組</button>
@@ -1019,6 +1118,11 @@ function renderWorkout() {
   }).join('');
 
   document.getElementById('workoutList').innerHTML = html;
+}
+
+function updateTip(exIdx, val) {
+  state.days[state.dayIdx].exercises[exIdx].tip = val;
+  save();
 }
 
 function liveEditSet(exIdx, sIdx) {
