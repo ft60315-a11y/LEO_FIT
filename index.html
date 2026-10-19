@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>OBSIDIAN // V3.1</title>
+<title>OBSIDIAN // V3.2</title>
 <style>
   :root {
     --bg: #050506;
@@ -33,7 +33,7 @@
     background-color: var(--bg);
     color: var(--text);
     font-family: var(--font-sans);
-    padding-bottom: 110px;
+    padding-bottom: 115px;
     max-width: 460px;
     margin: 0 auto;
     min-height: 100vh;
@@ -62,7 +62,7 @@
   .logo-group {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
 
   .logo-dot {
@@ -76,27 +76,38 @@
   .week-badge {
     font-family: var(--font-mono);
     font-weight: 900;
-    font-size: 0.95rem;
-    letter-spacing: 0.05em;
+    font-size: 0.92rem;
+    letter-spacing: 0.04em;
     color: var(--text);
+    margin-right: 2px;
   }
 
-  .next-week-btn {
+  .week-ctrl-btn {
     background: var(--surface);
-    border: 1px solid var(--accent);
-    color: var(--accent);
+    border: 1px solid var(--border);
+    color: var(--text);
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 800;
-    padding: 5px 10px;
-    border-radius: 8px;
+    padding: 5px 8px;
+    border-radius: 7px;
     cursor: pointer;
     transition: all 0.2s;
   }
 
-  .next-week-btn:active {
+  .week-ctrl-btn.primary {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .week-ctrl-btn:active {
     background: var(--accent);
     color: #000;
+  }
+
+  .week-ctrl-btn.undo {
+    color: #f97316;
+    border-color: rgba(249, 115, 22, 0.45);
   }
 
   .phase-pill {
@@ -111,7 +122,7 @@
     background: transparent;
     border: none;
     color: var(--muted);
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     font-weight: 800;
     padding: 4px 10px;
     border-radius: 99px;
@@ -183,12 +194,13 @@
   }
 
   .day-dot {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: var(--accent);
-    margin: 3px auto 0;
+    margin: 4px auto 0;
     opacity: 0;
+    box-shadow: 0 0 6px var(--accent);
   }
 
   .day-btn.all-done .day-dot {
@@ -269,12 +281,21 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 4px;
   }
 
   .ex-name {
     font-size: 1.02rem;
     font-weight: 800;
+  }
+
+  .ex-sub-meta {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
   }
 
   .e1rm-badge {
@@ -384,16 +405,22 @@
     background: var(--accent);
     color: #000;
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: 0.56rem;
     font-weight: 900;
     padding: 1px 4px;
     border-radius: 4px;
     pointer-events: none;
+    white-space: nowrap;
   }
 
   .delta-pill.pr {
     background: var(--top-tag);
     color: #fff;
+  }
+
+  .delta-pill.hold {
+    background: #3f3f46;
+    color: #e4e4e7;
   }
 
   .set-check {
@@ -417,16 +444,16 @@
     color: #000;
   }
 
-  /* Self-Cue / Tips Row */
+  /* Multi-line Auto-expanding Tips Row */
   .tip-wrap {
     margin-top: 8px;
     display: flex;
-    align-items: center;
-    gap: 6px;
+    align-items: flex-start;
+    gap: 8px;
     background: rgba(255, 255, 255, 0.02);
     border: 1px dashed rgba(255, 255, 255, 0.08);
     border-radius: 8px;
-    padding: 5px 10px;
+    padding: 7px 10px;
     transition: border-color 0.2s;
   }
 
@@ -443,6 +470,7 @@
     letter-spacing: 0.04em;
     user-select: none;
     white-space: nowrap;
+    margin-top: 2px;
   }
 
   .tip-input {
@@ -451,9 +479,13 @@
     border: none;
     color: var(--muted);
     font-family: var(--font-sans);
-    font-size: 0.74rem;
-    line-height: 1.4;
+    font-size: 0.76rem;
+    line-height: 1.45;
     outline: none;
+    resize: none;
+    overflow: hidden;
+    min-height: 20px;
+    word-break: break-word;
   }
 
   .tip-input:focus {
@@ -488,21 +520,23 @@
   .finish-day-btn {
     width: 100%;
     background: var(--surface);
-    border: 1px solid var(--accent);
-    color: var(--accent);
+    border: 1px solid var(--border);
+    color: var(--text);
     font-family: var(--font-mono);
     font-size: 0.85rem;
     font-weight: 900;
-    padding: 12px;
+    padding: 13px;
     border-radius: 12px;
     cursor: pointer;
-    margin-top: 4px;
+    margin-top: 6px;
     margin-bottom: 16px;
+    transition: all 0.2s;
   }
 
-  .finish-day-btn:active {
-    background: var(--accent);
-    color: #000;
+  .finish-day-btn.done-today {
+    background: rgba(204, 255, 0, 0.12);
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   /* Bottom Bar */
@@ -636,7 +670,8 @@
     <div class="logo-group">
       <div class="logo-dot"></div>
       <span class="week-badge" id="weekLabel">WEEK 1</span>
-      <button class="next-week-btn" onclick="advanceNextWeek()">推進至下週 ➔</button>
+      <button class="week-ctrl-btn undo" id="btnUndoWeek" style="display:none;" onclick="revertLastWeek()">⤺ 返回上週</button>
+      <button class="week-ctrl-btn primary" onclick="advanceNextWeek()">下週結算 ➔</button>
     </div>
     <div class="phase-pill">
       <button class="phase-btn active" id="btnBulk" onclick="setPhase('bulk')">增肌</button>
@@ -652,7 +687,7 @@
   <!-- WORKOUT VIEW -->
   <div id="paneWorkout" class="view-pane active">
     <div id="workoutList"></div>
-    <button class="finish-day-btn" onclick="finishDaySession()">✓ 結算今日訓練（轉為下週計算基準）</button>
+    <button class="finish-day-btn" id="btnFinishDay" onclick="completeTodayWorkout()">✓ 完成今日訓練</button>
   </div>
 
   <!-- STATS & HISTORY VIEW -->
@@ -662,7 +697,7 @@
         <span class="ex-name">空腹體重追蹤 (183cm)</span>
         <span class="e1rm-badge">基準 79.6kg</span>
       </div>
-      <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <div style="display:flex; gap:8px; margin-bottom:12px; margin-top:8px;">
         <input type="number" step="0.1" id="bwIn" class="set-input" placeholder="今日體重 (kg)" style="text-align:left; padding-left:12px;">
         <button class="set-check" style="width:80px; background:var(--accent); color:#000;" onclick="addBw()">紀錄</button>
       </div>
@@ -671,9 +706,21 @@
 
     <div class="ex-card">
       <div class="ex-top">
+        <span class="ex-name">運動科學雙重漸進模型 (Double Progression)</span>
+      </div>
+      <div style="font-size:0.78rem; color:var(--muted); line-height:1.65; margin-top:6px;">
+        • <b style="color:var(--accent)">原則：先求次數達標（累積訓練容量），再求提升重量（機械張力）。</b><br>
+        • <b>主項 TOP 極限組 (目標 3~5 下)</b>：上週若只舉 1~4 下，本週<b>維持原重量、目標 +1 下</b>；唯獨上週舉滿 <b>5 下</b>，本週才會自動 <b>+2.5 kg</b> 並退回 3 下。<br>
+        • <b>複合動作組 S/BACK (目標 6~8 或 8~10 下)</b>：在次數區間內每週優先 <b>+1 下</b>；只有當「該組做滿區間上限」且「全組平均達標」時，下週才升級重量並退回區間下限。<br>
+        • <b>小肌群孤立動作 (目標 12~15 下)</b>：因單次加重量比例極高，必須在原重量推進至 <b>15 下滿</b>，下週才微幅加重並退回 12 下。
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-top">
         <span class="ex-name">跨週歷史推進紀錄</span>
       </div>
-      <div id="weekHistoryList" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--muted);"></div>
+      <div id="weekHistoryList" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--muted); margin-top:6px;"></div>
     </div>
   </div>
 
@@ -683,7 +730,7 @@
       <div class="ex-top">
         <span class="ex-name">課表結構編輯</span>
       </div>
-      <textarea id="jsonBox" style="width:100%; height:260px; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:10px; padding:10px; font-family:var(--font-mono); font-size:0.75rem; margin-bottom:10px;"></textarea>
+      <textarea id="jsonBox" style="width:100%; height:260px; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:10px; padding:10px; font-family:var(--font-mono); font-size:0.75rem; margin-bottom:10px; margin-top:8px;"></textarea>
       <div style="display:flex; gap:8px;">
         <button class="set-check" style="flex:1; background:var(--accent); color:#000; font-size:0.85rem;" onclick="saveJson()">儲存課表</button>
         <button class="set-check" style="width:90px; font-size:0.8rem;" onclick="resetAll()">重置預設</button>
@@ -749,147 +796,148 @@ const DEFAULT_DATA = {
   dayIdx: 0,
   bwLogs: [{ date: '10/14', w: 79.6 }],
   weekArchives: [],
+  undoStack: [], // Stores full deep-copy snapshots before advancing week
   days: [
     {
-      name: '週一', title: '功能腿', isBall: false,
+      name: '週一', title: '功能腿', isBall: false, dayDone: false,
       warmup: { name: '高腳杯深蹲停留 + 髖 90/90', sub: '2組 × 8次', done: false },
       exercises: [
         {
-          name: '槓鈴背深蹲', isBar: true, inc: 2.5, rest: 180, targetMax: 6,
+          name: '槓鈴背深蹲', isBar: true, inc: 2.5, rest: 180, targetMin: 5, targetMax: 7,
           tip: DEFAULT_TIPS['槓鈴背深蹲'],
           sets: [
-            { tag: 'S', prevW: 75, prevR: 6, w: null, r: null, done: false },
-            { tag: 'TOP', prevW: 87.5, prevR: 4, w: null, r: null, done: false },
-            { tag: 'BACK', prevW: 77.5, prevR: 6, w: null, r: null, done: false },
+            { tag: 'S', prevW: 75, prevR: 5, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 87.5, prevR: 3, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 77.5, prevR: 5, w: null, r: null, done: false },
             { tag: 'BACK', prevW: 75, prevR: 6, w: null, r: null, done: false }
           ]
         },
         {
-          name: '羅馬尼亞硬舉 (RDL)', isBar: true, inc: 2.5, rest: 120, targetMax: 10,
+          name: '羅馬尼亞硬舉 (RDL)', isBar: true, inc: 2.5, rest: 120, targetMin: 8, targetMax: 10,
           tip: DEFAULT_TIPS['羅馬尼亞硬舉 (RDL)'],
           sets: [
             { tag: 'S', prevW: 65, prevR: 8, w: null, r: null, done: false },
-            { tag: 'TOP', prevW: 75, prevR: 5, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 75, prevR: 4, w: null, r: null, done: false },
             { tag: 'BACK', prevW: 67.5, prevR: 8, w: null, r: null, done: false },
             { tag: 'BACK', prevW: 67.5, prevR: 8, w: null, r: null, done: false }
           ]
         },
         {
-          name: '器械/滑輪髖外展', isBar: false, inc: 2.0, rest: 60, targetMax: 15,
+          name: '器械/滑輪髖外展', isBar: false, inc: 2.0, rest: 60, targetMin: 12, targetMax: 15,
           tip: DEFAULT_TIPS['器械/滑輪髖外展'],
           sets: [
-            { tag: 'S', prevW: 45, prevR: 15, w: null, r: null, done: false },
-            { tag: 'S', prevW: 45, prevR: 14, w: null, r: null, done: false },
-            { tag: 'S', prevW: 45, prevR: 14, w: null, r: null, done: false }
+            { tag: 'S', prevW: 45, prevR: 13, w: null, r: null, done: false },
+            { tag: 'S', prevW: 45, prevR: 13, w: null, r: null, done: false },
+            { tag: 'S', prevW: 45, prevR: 12, w: null, r: null, done: false }
           ]
         },
         {
-          name: '器械/滑輪髖內收', isBar: false, inc: 2.0, rest: 60, targetMax: 15,
+          name: '器械/滑輪髖內收', isBar: false, inc: 2.0, rest: 60, targetMin: 12, targetMax: 15,
           tip: DEFAULT_TIPS['器械/滑輪髖內收'],
           sets: [
-            { tag: 'S', prevW: 45, prevR: 15, w: null, r: null, done: false },
-            { tag: 'S', prevW: 45, prevR: 15, w: null, r: null, done: false },
-            { tag: 'S', prevW: 45, prevR: 14, w: null, r: null, done: false }
+            { tag: 'S', prevW: 45, prevR: 14, w: null, r: null, done: false },
+            { tag: 'S', prevW: 45, prevR: 13, w: null, r: null, done: false },
+            { tag: 'S', prevW: 45, prevR: 12, w: null, r: null, done: false }
           ]
         }
       ]
     },
     {
-      name: '週二', title: '上肢推', isBall: false,
+      name: '週二', title: '上肢推', isBall: false, dayDone: false,
       warmup: { name: '彈力帶肩外旋 + 肩胛引伸', sub: '2組 × 15次', done: false },
       exercises: [
         {
-          name: '平板槓鈴臥推', isBar: true, inc: 2.5, rest: 180, targetMax: 6,
+          name: '平板槓鈴臥推', isBar: true, inc: 2.5, rest: 180, targetMin: 5, targetMax: 7,
           tip: DEFAULT_TIPS['平板槓鈴臥推'],
           sets: [
-            { tag: 'S', prevW: 60, prevR: 6, w: null, r: null, done: false },
-            { tag: 'TOP', prevW: 70, prevR: 4, w: null, r: null, done: false },
-            { tag: 'BACK', prevW: 62.5, prevR: 6, w: null, r: null, done: false },
+            { tag: 'S', prevW: 60, prevR: 5, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 70, prevR: 3, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 62.5, prevR: 5, w: null, r: null, done: false },
             { tag: 'BACK', prevW: 60, prevR: 6, w: null, r: null, done: false }
           ]
         },
         {
-          name: '坐姿啞鈴肩推', isBar: false, inc: 2.0, rest: 120, targetMax: 10,
+          name: '坐姿啞鈴肩推', isBar: false, inc: 2.0, rest: 120, targetMin: 8, targetMax: 10,
           tip: DEFAULT_TIPS['坐姿啞鈴肩推'],
           sets: [
-            { tag: 'S', prevW: 20, prevR: 9, w: null, r: null, done: false },
-            { tag: 'TOP', prevW: 24, prevR: 5, w: null, r: null, done: false },
-            { tag: 'BACK', prevW: 20, prevR: 9, w: null, r: null, done: false },
+            { tag: 'S', prevW: 20, prevR: 8, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 24, prevR: 4, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 20, prevR: 8, w: null, r: null, done: false },
             { tag: 'BACK', prevW: 20, prevR: 8, w: null, r: null, done: false }
           ]
         },
         {
-          name: '上斜啞鈴臥推', isBar: false, inc: 2.0, rest: 90, targetMax: 10,
+          name: '上斜啞鈴臥推', isBar: false, inc: 2.0, rest: 90, targetMin: 8, targetMax: 11,
           tip: DEFAULT_TIPS['上斜啞鈴臥推'],
           sets: [
-            { tag: 'S', prevW: 22, prevR: 10, w: null, r: null, done: false },
             { tag: 'S', prevW: 22, prevR: 9, w: null, r: null, done: false },
+            { tag: 'S', prevW: 22, prevR: 8, w: null, r: null, done: false },
             { tag: 'S', prevW: 22, prevR: 8, w: null, r: null, done: false }
           ]
         },
         {
-          name: '啞鈴側平舉', isBar: false, inc: 1.0, rest: 60, targetMax: 15,
+          name: '啞鈴側平舉', isBar: false, inc: 1.0, rest: 60, targetMin: 12, targetMax: 15,
           tip: DEFAULT_TIPS['啞鈴側平舉'],
           sets: [
-            { tag: 'S', prevW: 10, prevR: 15, w: null, r: null, done: false },
-            { tag: 'S', prevW: 10, prevR: 15, w: null, r: null, done: false },
-            { tag: 'S', prevW: 10, prevR: 14, w: null, r: null, done: false },
+            { tag: 'S', prevW: 10, prevR: 13, w: null, r: null, done: false },
+            { tag: 'S', prevW: 10, prevR: 13, w: null, r: null, done: false },
+            { tag: 'S', prevW: 10, prevR: 12, w: null, r: null, done: false },
             { tag: 'S', prevW: 10, prevR: 12, w: null, r: null, done: false }
           ]
         }
       ]
     },
     {
-      name: '週三', title: '上肢拉', isBall: false,
+      name: '週三', title: '上肢拉', isBall: false, dayDone: false,
       warmup: { name: '單槓懸吊 + 肩胛下壓啟動', sub: '2組 × 10次', done: false },
       exercises: [
         {
-          name: '引體向上 / 滑輪下拉', isBar: false, inc: 2.5, rest: 150, targetMax: 10,
+          name: '引體向上 / 滑輪下拉', isBar: false, inc: 2.5, rest: 150, targetMin: 6, targetMax: 10,
           tip: DEFAULT_TIPS['引體向上 / 滑輪下拉'],
           sets: [
-            { tag: 'S', prevW: 60, prevR: 10, w: null, r: null, done: false },
-            { tag: 'TOP', prevW: 70, prevR: 5, w: null, r: null, done: false },
-            { tag: 'BACK', prevW: 60, prevR: 9, w: null, r: null, done: false },
-            { tag: 'BACK', prevW: 60, prevR: 8, w: null, r: null, done: false }
+            { tag: 'S', prevW: 60, prevR: 8, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 70, prevR: 4, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 60, prevR: 8, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 60, prevR: 7, w: null, r: null, done: false }
           ]
         },
         {
-          name: '胸靠墊划船 / 單臂划船', isBar: false, inc: 2.0, rest: 120, targetMax: 10,
+          name: '胸靠墊划船 / 單臂划船', isBar: false, inc: 2.0, rest: 120, targetMin: 8, targetMax: 10,
           tip: DEFAULT_TIPS['胸靠墊划船 / 單臂划船'],
           sets: [
-            { tag: 'S', prevW: 26, prevR: 10, w: null, r: null, done: false },
-            { tag: 'TOP', prevW: 30, prevR: 5, w: null, r: null, done: false },
-            { tag: 'BACK', prevW: 26, prevR: 10, w: null, r: null, done: false },
-            { tag: 'BACK', prevW: 26, prevR: 9, w: null, r: null, done: false }
+            { tag: 'S', prevW: 26, prevR: 8, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 30, prevR: 4, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 26, prevR: 8, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 26, prevR: 8, w: null, r: null, done: false }
           ]
         },
         {
-          name: '繩索面拉 (後肩)', isBar: false, inc: 2.5, rest: 60, targetMax: 15,
+          name: '繩索面拉 (後肩)', isBar: false, inc: 2.5, rest: 60, targetMin: 12, targetMax: 15,
           tip: DEFAULT_TIPS['繩索面拉 (後肩)'],
           sets: [
-            { tag: 'S', prevW: 25, prevR: 15, w: null, r: null, done: false },
-            { tag: 'S', prevW: 25, prevR: 15, w: null, r: null, done: false },
-            { tag: 'S', prevW: 25, prevR: 14, w: null, r: null, done: false },
-            { tag: 'S', prevW: 25, prevR: 14, w: null, r: null, done: false }
+            { tag: 'S', prevW: 25, prevR: 13, w: null, r: null, done: false },
+            { tag: 'S', prevW: 25, prevR: 13, w: null, r: null, done: false },
+            { tag: 'S', prevW: 25, prevR: 12, w: null, r: null, done: false },
+            { tag: 'S', prevW: 25, prevR: 12, w: null, r: null, done: false }
           ]
         },
         {
-          name: '上斜啞鈴彎舉', isBar: false, inc: 1.0, rest: 60, targetMax: 12,
+          name: '上斜啞鈴彎舉', isBar: false, inc: 1.0, rest: 60, targetMin: 10, targetMax: 12,
           tip: DEFAULT_TIPS['上斜啞鈴彎舉'],
           sets: [
-            { tag: 'S', prevW: 12, prevR: 12, w: null, r: null, done: false },
-            { tag: 'S', prevW: 12, prevR: 11, w: null, r: null, done: false },
+            { tag: 'S', prevW: 12, prevR: 10, w: null, r: null, done: false },
+            { tag: 'S', prevW: 12, prevR: 10, w: null, r: null, done: false },
             { tag: 'S', prevW: 12, prevR: 10, w: null, r: null, done: false }
           ]
         }
       ]
     },
     {
-      name: '週四', title: '籃球日', isBall: true,
+      name: '週四', title: '籃球日', isBall: true, dayDone: false,
       warmup: { name: '動態馬克操 + 腳踝喚醒', sub: '10分鐘', done: false },
       exercises: [
         {
-          name: '實戰籃球 (分鐘)', isBar: false, inc: 0, rest: 0, targetMax: 60,
+          name: '實戰籃球 (分鐘)', isBar: false, inc: 0, rest: 0, targetMin: 60, targetMax: 60,
           tip: DEFAULT_TIPS['實戰籃球 (分鐘)'],
           sets: [
             { tag: 'S', prevW: 1, prevR: 60, w: null, r: null, done: false }
@@ -898,40 +946,40 @@ const DEFAULT_DATA = {
       ]
     },
     {
-      name: '週五', title: '補強+跑', isBall: false,
+      name: '週五', title: '補強+跑', isBall: false, dayDone: false,
       warmup: { name: '彈力帶繞肩 + 爆發伏地挺身', sub: '2組 × 10次', done: false },
       exercises: [
         {
-          name: '窄握槓鈴臥推', isBar: true, inc: 2.5, rest: 120, targetMax: 8,
+          name: '窄握槓鈴臥推', isBar: true, inc: 2.5, rest: 120, targetMin: 6, targetMax: 8,
           tip: DEFAULT_TIPS['窄握槓鈴臥推'],
           sets: [
-            { tag: 'S', prevW: 52.5, prevR: 8, w: null, r: null, done: false },
-            { tag: 'TOP', prevW: 62.5, prevR: 4, w: null, r: null, done: false },
-            { tag: 'BACK', prevW: 55, prevR: 8, w: null, r: null, done: false },
-            { tag: 'BACK', prevW: 52.5, prevR: 8, w: null, r: null, done: false }
+            { tag: 'S', prevW: 52.5, prevR: 6, w: null, r: null, done: false },
+            { tag: 'TOP', prevW: 62.5, prevR: 3, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 55, prevR: 6, w: null, r: null, done: false },
+            { tag: 'BACK', prevW: 52.5, prevR: 7, w: null, r: null, done: false }
           ]
         },
         {
-          name: '滑輪單臂側平舉', isBar: false, inc: 1.25, rest: 60, targetMax: 15,
+          name: '滑輪單臂側平舉', isBar: false, inc: 1.25, rest: 60, targetMin: 12, targetMax: 15,
           tip: DEFAULT_TIPS['滑輪單臂側平舉'],
           sets: [
-            { tag: 'S', prevW: 7.5, prevR: 15, w: null, r: null, done: false },
-            { tag: 'S', prevW: 7.5, prevR: 15, w: null, r: null, done: false },
-            { tag: 'S', prevW: 7.5, prevR: 14, w: null, r: null, done: false },
+            { tag: 'S', prevW: 7.5, prevR: 13, w: null, r: null, done: false },
+            { tag: 'S', prevW: 7.5, prevR: 13, w: null, r: null, done: false },
+            { tag: 'S', prevW: 7.5, prevR: 12, w: null, r: null, done: false },
             { tag: 'S', prevW: 7.5, prevR: 12, w: null, r: null, done: false }
           ]
         },
         {
-          name: '反握滑輪下拉', isBar: false, inc: 2.5, rest: 90, targetMax: 12,
+          name: '反握滑輪下拉', isBar: false, inc: 2.5, rest: 90, targetMin: 10, targetMax: 12,
           tip: DEFAULT_TIPS['反握滑輪下拉'],
           sets: [
-            { tag: 'S', prevW: 55, prevR: 12, w: null, r: null, done: false },
-            { tag: 'S', prevW: 55, prevR: 11, w: null, r: null, done: false },
+            { tag: 'S', prevW: 55, prevR: 10, w: null, r: null, done: false },
+            { tag: 'S', prevW: 55, prevR: 10, w: null, r: null, done: false },
             { tag: 'S', prevW: 55, prevR: 10, w: null, r: null, done: false }
           ]
         },
         {
-          name: '2 公里節奏跑 (km / 分鐘)', isBar: false, inc: 0, rest: 0, targetMax: 10,
+          name: '2 公里節奏跑 (km / 分鐘)', isBar: false, inc: 0, rest: 0, targetMin: 9, targetMax: 10,
           tip: DEFAULT_TIPS['2 公里節奏跑 (km / 分鐘)'],
           sets: [
             { tag: 'TOP', prevW: 2.0, prevR: 10, w: null, r: null, done: false }
@@ -944,11 +992,14 @@ const DEFAULT_DATA = {
 
 let state = JSON.parse(localStorage.getItem('OBSIDIAN_V3_STATE')) || DEFAULT_DATA;
 
-// Seamless migration: if user already has V3 data in localStorage without `tip`, inject default tips automatically
+// Seamless migration for existing localStorage data
+if (!state.undoStack) state.undoStack = [];
 state.days.forEach(d => {
+  if (typeof d.dayDone === 'undefined') d.dayDone = false;
   d.exercises.forEach(ex => {
-    if (typeof ex.tip === 'undefined') {
-      ex.tip = DEFAULT_TIPS[ex.name] || '';
+    if (typeof ex.tip === 'undefined') ex.tip = DEFAULT_TIPS[ex.name] || '';
+    if (typeof ex.targetMin === 'undefined') {
+      ex.targetMin = Math.max(5, (ex.targetMax || 8) - 3);
     }
   });
 });
@@ -957,36 +1008,65 @@ function save() {
   localStorage.setItem('OBSIDIAN_V3_STATE', JSON.stringify(state));
 }
 
-function escapeAttr(str) {
-  return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+function escapeHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// Compute Today's Target from Locked Previous Week Data (prevW, prevR)
+// ============================================================================
+// 5. SPORTS SCIENCE DOUBLE PROGRESSION & SET-CONSOLIDATION ALGORITHM
+// ============================================================================
+// Instead of blindly adding weight every week, sports science dictates:
+// - Phase 1 (Rep Accumulation): Keep weight constant and add +1 rep per week until
+//   reaching the top of the hypertrophy/strength rep range.
+// - Phase 2 (Set Consolidation): Even if 1 working set hits targetMax, if the other
+//   working sets lagged behind by >=2 reps (fatigue drop-off), hold the weight on
+//   that set to consolidate volume across all sets before jumping weight.
+// - Phase 3 (Load Increment): Only when top of rep range is conquered with solid
+//   consolidation do we add weight (+2.5kg compound / +1~2kg isolation) and reset
+//   reps to targetMin.
 function getSetSuggestion(ex, s, phase) {
   const lastW = parseFloat(s.prevW) || 0;
   const lastR = parseInt(s.prevR) || 0;
+  const tMax = ex.targetMax || 8;
+  const tMin = ex.targetMin || Math.max(5, tMax - 3);
 
   if (ex.inc === 0) {
-    return { w: lastW, r: lastR, badge: '' };
+    return { w: lastW, r: lastR, badge: '', type: 'none' };
   }
 
   if (phase === 'cut') {
-    return { w: lastW, r: lastR, badge: '保強' };
+    return { w: lastW, r: lastR, badge: '維持強度', type: 'hold' };
   }
 
-  // BULK PHASE
+  // LEAN BULK — SPORTS SCIENCE DOUBLE PROGRESSION
   if (s.tag === 'TOP') {
-    if (lastR >= 4) {
-      return { w: +(lastW + ex.inc).toFixed(2), r: 3, badge: `+${ex.inc}kg` };
+    // Heavy Top Set (target zone: 3 to 5 reps, <6 reps)
+    // Only increase weight when 5 reps are mastered!
+    // If last week was 1-4 reps, keep the exact same weight and aim for +1 rep.
+    if (lastR >= 5) {
+      return { w: +(lastW + ex.inc).toFixed(2), r: 3, badge: `+${ex.inc}kg`, type: 'weight' };
     } else {
-      return { w: lastW, r: lastR + 1, badge: '+1下' };
+      return { w: lastW, r: lastR + 1, badge: '+1下', type: 'rep' };
     }
   } else {
-    if (lastR >= ex.targetMax) {
-      const resetReps = Math.max(5, ex.targetMax - 2);
-      return { w: +(lastW + ex.inc).toFixed(2), r: resetReps, badge: `+${ex.inc}kg` };
+    // Working Sets (S / BACK): Target range is [tMin, tMax]
+    const workingSets = ex.sets.filter(item => item.tag !== 'TOP');
+    const avgWorkingReps = workingSets.length
+      ? workingSets.reduce((sum, item) => sum + (parseInt(item.prevR) || 0), 0) / workingSets.length
+      : lastR;
+
+    if (lastR < tMax) {
+      // Rep Accumulation Phase: Not at top of rep range yet -> Keep weight, add +1 rep
+      return { w: lastW, r: lastR + 1, badge: '+1下', type: 'rep' };
     } else {
-      return { w: lastW, r: lastR + 1, badge: '+1下' };
+      // Hit tMax on this set! Check if other sets are consolidated (avg within 1.2 reps of tMax)
+      if (avgWorkingReps >= tMax - 1.2) {
+        // True mastery across sets -> Increase load and reset reps to tMin
+        return { w: +(lastW + ex.inc).toFixed(2), r: tMin, badge: `+${ex.inc}kg`, type: 'weight' };
+      } else {
+        // Consolidation Phase: Hold weight & tMax on this set while fatigued later sets catch up
+        return { w: lastW, r: lastR, badge: '鞏固組數', type: 'hold' };
+      }
     }
   }
 }
@@ -1011,6 +1091,14 @@ function renderHeader() {
   document.getElementById('btnCut').classList.toggle('active', !isBulk);
   document.getElementById('weekLabel').innerText = `WEEK ${state.week}`;
 
+  // Show Undo button if there is a snapshot in undoStack
+  const undoBtn = document.getElementById('btnUndoWeek');
+  if (state.undoStack && state.undoStack.length > 0) {
+    undoBtn.style.display = 'inline-block';
+  } else {
+    undoBtn.style.display = 'none';
+  }
+
   const day = state.days[state.dayIdx];
   let kcal = isBulk ? (day.isBall ? 3300 : 3050) : (day.isBall ? 2600 : 2350);
   let p = isBulk ? 155 : 175;
@@ -1027,15 +1115,23 @@ function renderHeader() {
 
 function renderDays() {
   document.getElementById('dayStrip').innerHTML = state.days.map((d, i) => {
-    const allDone = d.exercises.every(ex => ex.sets.every(s => s.done));
+    const allSetsDone = d.exercises.every(ex => ex.sets.every(s => s.done));
+    const isComplete = d.dayDone || allSetsDone;
     return `
-      <div class="day-btn ${i === state.dayIdx ? 'active' : ''} ${allDone ? 'all-done' : ''}" onclick="selectDay(${i})">
+      <div class="day-btn ${i === state.dayIdx ? 'active' : ''} ${isComplete ? 'all-done' : ''}" onclick="selectDay(${i})">
         <span class="d-label">${d.name}</span>
         <span class="d-title">${d.title}</span>
         <div class="day-dot"></div>
       </div>
     `;
   }).join('');
+}
+
+function autoResizeAllTips() {
+  document.querySelectorAll('textarea.tip-input').forEach(el => {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + 'px';
+  });
 }
 
 function renderWorkout() {
@@ -1052,6 +1148,9 @@ function renderWorkout() {
 
   html += day.exercises.map((ex, exIdx) => {
     const best1rm = getBest1RM(ex);
+    const tMin = ex.targetMin || Math.max(5, (ex.targetMax || 8) - 3);
+    const tMax = ex.targetMax || 8;
+
     const maxWeightSet = ex.sets.reduce((m, s) => {
       const sug = getSetSuggestion(ex, s, state.phase);
       const curW = s.w !== null ? s.w : sug.w;
@@ -1068,19 +1167,21 @@ function renderWorkout() {
       if (s.tag === 'TOP') { tagClass = 'top'; tagLabel = 'TOP'; }
       else if (s.tag === 'BACK') { tagClass = 'back'; tagLabel = 'BACK'; }
 
-      const isWeightUp = sug.badge.includes('kg');
-      const isRepUp = sug.badge.includes('下');
+      const isWeightUp = sug.type === 'weight';
+      const isRepUp = sug.type === 'rep';
+      const isHold = sug.type === 'hold';
 
       return `
         <div class="set-row ${s.done ? 'done' : ''}">
           <div class="set-tag ${tagClass}" onclick="cycleSetTag(${exIdx}, ${sIdx})">${tagLabel}</div>
           <div class="prev-col">${s.prevW}×${s.prevR}</div>
           <div class="input-wrap">
-            <input type="number" step="0.5" class="set-input" id="w_${exIdx}_${sIdx}" value="${dispW}" onchange="liveEditSet(${exIdx}, ${sIdx})">
+            <input type="number" step="0.5" class="set-input" id="w_${exIdx}_${sIdx}" value="${dispW}" oninput="liveEditSet(${exIdx}, ${sIdx})">
             ${!s.done && isWeightUp ? `<span class="delta-pill pr">${sug.badge}</span>` : ''}
+            ${!s.done && isHold ? `<span class="delta-pill hold">${sug.badge}</span>` : ''}
           </div>
           <div class="input-wrap">
-            <input type="number" class="set-input" id="r_${exIdx}_${sIdx}" value="${dispR}" onchange="liveEditSet(${exIdx}, ${sIdx})">
+            <input type="number" class="set-input" id="r_${exIdx}_${sIdx}" value="${dispR}" oninput="liveEditSet(${exIdx}, ${sIdx})">
             ${!s.done && isRepUp ? `<span class="delta-pill">${sug.badge}</span>` : ''}
           </div>
           <button class="set-check" onclick="completeSet(${exIdx}, ${sIdx})">✓</button>
@@ -1094,6 +1195,9 @@ function renderWorkout() {
           <span class="ex-name">${ex.name}</span>
           ${best1rm ? `<span class="e1rm-badge">1RM ${best1rm}kg</span>` : ''}
         </div>
+        <div class="ex-sub-meta">
+          <span>${ex.inc === 0 ? '心肺 / 專項體能' : `雙重漸進區間: 一般組 ${tMin}-${tMax}下 | TOP組 3-5下`}</span>
+        </div>
         <div class="set-header">
           <span>組別</span>
           <span>上週</span>
@@ -1104,7 +1208,7 @@ function renderWorkout() {
         ${rowsHtml}
         <div class="tip-wrap">
           <span class="tip-icon">// TIP</span>
-          <input type="text" class="tip-input" value="${escapeAttr(ex.tip)}" placeholder="寫下給自己的動作提醒（如：收肩胛、沉肩、膝蓋對齊腳尖...）" oninput="updateTip(${exIdx}, this.value)">
+          <textarea rows="1" class="tip-input" placeholder="寫下給自己的動作提醒..." oninput="updateTip(${exIdx}, this)">${escapeHtml(ex.tip)}</textarea>
         </div>
         <div class="card-actions">
           <div style="display:flex; gap:6px;">
@@ -1118,10 +1222,24 @@ function renderWorkout() {
   }).join('');
 
   document.getElementById('workoutList').innerHTML = html;
+
+  const finishBtn = document.getElementById('btnFinishDay');
+  const allSetsDone = day.exercises.every(ex => ex.sets.every(s => s.done));
+  if (day.dayDone || allSetsDone) {
+    finishBtn.className = 'finish-day-btn done-today';
+    finishBtn.innerText = `✓ 今日訓練已完成 (${day.name}・${day.title})`;
+  } else {
+    finishBtn.className = 'finish-day-btn';
+    finishBtn.innerText = `✓ 完成今日訓練`;
+  }
+
+  autoResizeAllTips();
 }
 
-function updateTip(exIdx, val) {
-  state.days[state.dayIdx].exercises[exIdx].tip = val;
+function updateTip(exIdx, el) {
+  state.days[state.dayIdx].exercises[exIdx].tip = el.value;
+  el.style.height = 'auto';
+  el.style.height = (el.scrollHeight) + 'px';
   save();
 }
 
@@ -1135,7 +1253,8 @@ function liveEditSet(exIdx, sIdx) {
 }
 
 function completeSet(exIdx, sIdx) {
-  const ex = state.days[state.dayIdx].exercises[exIdx];
+  const day = state.days[state.dayIdx];
+  const ex = day.exercises[exIdx];
   const s = ex.sets[sIdx];
   const wVal = parseFloat(document.getElementById(`w_${exIdx}_${sIdx}`).value);
   const rVal = parseInt(document.getElementById(`r_${exIdx}_${sIdx}`).value);
@@ -1143,6 +1262,8 @@ function completeSet(exIdx, sIdx) {
   if (!isNaN(wVal)) s.w = wVal;
   if (!isNaN(rVal)) s.r = rVal;
   s.done = !s.done;
+
+  day.dayDone = day.exercises.every(e => e.sets.every(st => st.done));
 
   save();
   renderDays();
@@ -1153,43 +1274,58 @@ function completeSet(exIdx, sIdx) {
   }
 }
 
-// Roll over ONLY current day's completed sets into prevW / prevR
-function finishDaySession() {
+// 4. Bottom Button: Complete Today's Workout (Marks all today's sets done & locks current inputs without wiping/rolling over week)
+function completeTodayWorkout() {
   const day = state.days[state.dayIdx];
-  day.warmup.done = false;
-  day.exercises.forEach(ex => {
-    ex.sets.forEach(s => {
+  day.warmup.done = true;
+  day.exercises.forEach((ex, exIdx) => {
+    ex.sets.forEach((s, sIdx) => {
+      const wInput = document.getElementById(`w_${exIdx}_${sIdx}`);
+      const rInput = document.getElementById(`r_${exIdx}_${sIdx}`);
       const sug = getSetSuggestion(ex, s, state.phase);
-      const actualW = s.w !== null ? s.w : sug.w;
-      const actualR = s.r !== null ? s.r : sug.r;
-      if (s.done) {
-        s.prevW = actualW;
-        s.prevR = actualR;
-      }
-      s.w = null;
-      s.r = null;
-      s.done = false;
+      const wVal = wInput ? parseFloat(wInput.value) : null;
+      const rVal = rInput ? parseInt(rInput.value) : null;
+      s.w = !isNaN(wVal) ? wVal : (s.w !== null ? s.w : sug.w);
+      s.r = !isNaN(rVal) ? rVal : (s.r !== null ? s.r : sug.r);
+      s.done = true;
     });
   });
+  day.dayDone = true;
+  stopTimer();
   save();
   renderAll();
-  alert(`已結算「${day.name}・${day.title}」！今日數據已轉為下週「上週基準」，並自動推算好下週新目標。`);
 }
 
-// Roll over ALL days to Next Week and increment Week counter
+// 3. Top Button: Advance to Next Week (With Confirmation + Snapshot for Instant Undo)
 function advanceNextWeek() {
+  if (!confirm(`確定要結算 WEEK ${state.week} 並推進至 WEEK ${state.week + 1} 嗎？
+（若誤觸可隨時點選頂部「⤺ 返回上週」復原）`)) {
+    return;
+  }
+
+  // Save deep-copy snapshot into undoStack (keep up to 5 weeks of undo history)
+  const snapshot = JSON.parse(JSON.stringify({
+    week: state.week,
+    days: state.days,
+    weekArchives: state.weekArchives
+  }));
+  if (!state.undoStack) state.undoStack = [];
+  state.undoStack.push(snapshot);
+  if (state.undoStack.length > 5) state.undoStack.shift();
+
   let completedCount = 0;
   state.days.forEach(d => {
     d.warmup.done = false;
+    d.dayDone = false;
     d.exercises.forEach(ex => {
       ex.sets.forEach(s => {
         const sug = getSetSuggestion(ex, s, state.phase);
         const actualW = s.w !== null ? s.w : sug.w;
         const actualR = s.r !== null ? s.r : sug.r;
-        if (s.done) {
+        if (s.done || s.w !== null || s.r !== null) {
           s.prevW = actualW;
           s.prevR = actualR;
-          completedCount++;
+          if (s.done) completedCount++;
         }
         s.w = null;
         s.r = null;
@@ -1210,12 +1346,35 @@ function advanceNextWeek() {
   renderAll();
 }
 
+function revertLastWeek() {
+  if (!state.undoStack || state.undoStack.length === 0) return;
+  if (!confirm(`確定要撤銷推進、返回 WEEK ${state.week - 1} 的完整訓練數據嗎？`)) return;
+
+  const prevSnapshot = state.undoStack.pop();
+  state.week = prevSnapshot.week;
+  state.days = prevSnapshot.days;
+  state.weekArchives = prevSnapshot.weekArchives;
+
+  save();
+  renderAll();
+}
+
+// 2. Fix: Cycling Set Tag preserves any user-modified weight or reps!
 function cycleSetTag(exIdx, sIdx) {
   const s = state.days[state.dayIdx].exercises[exIdx].sets[sIdx];
+  const wInput = document.getElementById(`w_${exIdx}_${sIdx}`);
+  const rInput = document.getElementById(`r_${exIdx}_${sIdx}`);
+
+  if (wInput && !isNaN(parseFloat(wInput.value))) {
+    s.w = parseFloat(wInput.value);
+  }
+  if (rInput && !isNaN(parseInt(rInput.value))) {
+    s.r = parseInt(rInput.value);
+  }
+
   const order = ['S', 'TOP', 'BACK'];
   s.tag = order[(order.indexOf(s.tag) + 1) % order.length];
-  s.w = null;
-  s.r = null;
+
   save();
   renderWorkout();
 }
@@ -1337,7 +1496,7 @@ function renderStats() {
 
   const histEl = document.getElementById('weekHistoryList');
   if (!state.weekArchives || !state.weekArchives.length) {
-    histEl.innerHTML = '尚未結算週次（點擊頂部「推進至下週」即可歸檔）';
+    histEl.innerHTML = '尚未結算週次（週五練完點選頂部「下週結算 ➔」即可歸檔）';
   } else {
     histEl.innerHTML = state.weekArchives.map(a => `
       <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #222;">
@@ -1359,6 +1518,9 @@ function goTab(t) {
   if (t === 'E') {
     document.getElementById('jsonBox').value = JSON.stringify(state.days, null, 2);
   }
+  if (t === 'W') {
+    autoResizeAllTips();
+  }
 }
 function saveJson() {
   try {
@@ -1371,6 +1533,7 @@ function saveJson() {
   }
 }
 function resetAll() {
+  if (!confirm('確定要重置所有訓練紀錄並恢復預設課表嗎？')) return;
   localStorage.removeItem('OBSIDIAN_V3_STATE');
   state = JSON.parse(JSON.stringify(DEFAULT_DATA));
   renderAll();
