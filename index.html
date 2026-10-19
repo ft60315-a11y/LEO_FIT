@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>OBSIDIAN // V3.2</title>
+<title>OBSIDIAN // V3.4</title>
 <style>
   :root {
     --bg: #050506;
@@ -398,6 +398,13 @@
     border-color: var(--accent);
   }
 
+  .set-input:disabled {
+    opacity: 0.55;
+    background: #0d0d0f;
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
   .delta-pill {
     position: absolute;
     right: 4px;
@@ -687,7 +694,7 @@
   <!-- WORKOUT VIEW -->
   <div id="paneWorkout" class="view-pane active">
     <div id="workoutList"></div>
-    <button class="finish-day-btn" id="btnFinishDay" onclick="completeTodayWorkout()">✓ 完成今日訓練</button>
+    <button class="finish-day-btn" id="btnFinishDay" onclick="toggleTodayWorkout()">✓ 完成今日訓練</button>
   </div>
 
   <!-- STATS & HISTORY VIEW -->
@@ -796,7 +803,7 @@ const DEFAULT_DATA = {
   dayIdx: 0,
   bwLogs: [{ date: '10/14', w: 79.6 }],
   weekArchives: [],
-  undoStack: [], // Stores full deep-copy snapshots before advancing week
+  undoStack: [],
   days: [
     {
       name: '週一', title: '功能腿', isBall: false, dayDone: false,
@@ -946,7 +953,7 @@ const DEFAULT_DATA = {
       ]
     },
     {
-      name: '週五', title: '補強+跑', isBall: false, dayDone: false,
+      name: '週五', title: '補強+跑', isBar: false, dayDone: false,
       warmup: { name: '彈力帶繞肩 + 爆發伏地挺身', sub: '2組 × 10次', done: false },
       exercises: [
         {
@@ -992,7 +999,6 @@ const DEFAULT_DATA = {
 
 let state = JSON.parse(localStorage.getItem('OBSIDIAN_V3_STATE')) || DEFAULT_DATA;
 
-// Seamless migration for existing localStorage data
 if (!state.undoStack) state.undoStack = [];
 state.days.forEach(d => {
   if (typeof d.dayDone === 'undefined') d.dayDone = false;
@@ -1012,18 +1018,6 @@ function escapeHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// ============================================================================
-// 5. SPORTS SCIENCE DOUBLE PROGRESSION & SET-CONSOLIDATION ALGORITHM
-// ============================================================================
-// Instead of blindly adding weight every week, sports science dictates:
-// - Phase 1 (Rep Accumulation): Keep weight constant and add +1 rep per week until
-//   reaching the top of the hypertrophy/strength rep range.
-// - Phase 2 (Set Consolidation): Even if 1 working set hits targetMax, if the other
-//   working sets lagged behind by >=2 reps (fatigue drop-off), hold the weight on
-//   that set to consolidate volume across all sets before jumping weight.
-// - Phase 3 (Load Increment): Only when top of rep range is conquered with solid
-//   consolidation do we add weight (+2.5kg compound / +1~2kg isolation) and reset
-//   reps to targetMin.
 function getSetSuggestion(ex, s, phase) {
   const lastW = parseFloat(s.prevW) || 0;
   const lastR = parseInt(s.prevR) || 0;
@@ -1038,33 +1032,24 @@ function getSetSuggestion(ex, s, phase) {
     return { w: lastW, r: lastR, badge: '維持強度', type: 'hold' };
   }
 
-  // LEAN BULK — SPORTS SCIENCE DOUBLE PROGRESSION
   if (s.tag === 'TOP') {
-    // Heavy Top Set (target zone: 3 to 5 reps, <6 reps)
-    // Only increase weight when 5 reps are mastered!
-    // If last week was 1-4 reps, keep the exact same weight and aim for +1 rep.
     if (lastR >= 5) {
       return { w: +(lastW + ex.inc).toFixed(2), r: 3, badge: `+${ex.inc}kg`, type: 'weight' };
     } else {
       return { w: lastW, r: lastR + 1, badge: '+1下', type: 'rep' };
     }
   } else {
-    // Working Sets (S / BACK): Target range is [tMin, tMax]
     const workingSets = ex.sets.filter(item => item.tag !== 'TOP');
     const avgWorkingReps = workingSets.length
       ? workingSets.reduce((sum, item) => sum + (parseInt(item.prevR) || 0), 0) / workingSets.length
       : lastR;
 
     if (lastR < tMax) {
-      // Rep Accumulation Phase: Not at top of rep range yet -> Keep weight, add +1 rep
       return { w: lastW, r: lastR + 1, badge: '+1下', type: 'rep' };
     } else {
-      // Hit tMax on this set! Check if other sets are consolidated (avg within 1.2 reps of tMax)
       if (avgWorkingReps >= tMax - 1.2) {
-        // True mastery across sets -> Increase load and reset reps to tMin
         return { w: +(lastW + ex.inc).toFixed(2), r: tMin, badge: `+${ex.inc}kg`, type: 'weight' };
       } else {
-        // Consolidation Phase: Hold weight & tMax on this set while fatigued later sets catch up
         return { w: lastW, r: lastR, badge: '鞏固組數', type: 'hold' };
       }
     }
@@ -1091,7 +1076,6 @@ function renderHeader() {
   document.getElementById('btnCut').classList.toggle('active', !isBulk);
   document.getElementById('weekLabel').innerText = `WEEK ${state.week}`;
 
-  // Show Undo button if there is a snapshot in undoStack
   const undoBtn = document.getElementById('btnUndoWeek');
   if (state.undoStack && state.undoStack.length > 0) {
     undoBtn.style.display = 'inline-block';
@@ -1115,10 +1099,8 @@ function renderHeader() {
 
 function renderDays() {
   document.getElementById('dayStrip').innerHTML = state.days.map((d, i) => {
-    const allSetsDone = d.exercises.every(ex => ex.sets.every(s => s.done));
-    const isComplete = d.dayDone || allSetsDone;
     return `
-      <div class="day-btn ${i === state.dayIdx ? 'active' : ''} ${isComplete ? 'all-done' : ''}" onclick="selectDay(${i})">
+      <div class="day-btn ${i === state.dayIdx ? 'active' : ''} ${d.dayDone ? 'all-done' : ''}" onclick="selectDay(${i})">
         <span class="d-label">${d.name}</span>
         <span class="d-title">${d.title}</span>
         <div class="day-dot"></div>
@@ -1171,20 +1153,23 @@ function renderWorkout() {
       const isRepUp = sug.type === 'rep';
       const isHold = sug.type === 'hold';
 
+      // If day is locked (dayDone), disable inputs!
+      const disabledAttr = day.dayDone ? 'disabled' : '';
+
       return `
         <div class="set-row ${s.done ? 'done' : ''}">
-          <div class="set-tag ${tagClass}" onclick="cycleSetTag(${exIdx}, ${sIdx})">${tagLabel}</div>
+          <div class="set-tag ${tagClass}" ${day.dayDone ? '' : `onclick="cycleSetTag(${exIdx}, ${sIdx})"`}>${tagLabel}</div>
           <div class="prev-col">${s.prevW}×${s.prevR}</div>
           <div class="input-wrap">
-            <input type="number" step="0.5" class="set-input" id="w_${exIdx}_${sIdx}" value="${dispW}" oninput="liveEditSet(${exIdx}, ${sIdx})">
-            ${!s.done && isWeightUp ? `<span class="delta-pill pr">${sug.badge}</span>` : ''}
-            ${!s.done && isHold ? `<span class="delta-pill hold">${sug.badge}</span>` : ''}
+            <input type="number" step="0.5" class="set-input" id="w_${exIdx}_${sIdx}" value="${dispW}" ${disabledAttr} oninput="liveEditSet(${exIdx}, ${sIdx})">
+            ${!day.dayDone && !s.done && isWeightUp ? `<span class="delta-pill pr">${sug.badge}</span>` : ''}
+            ${!day.dayDone && !s.done && isHold ? `<span class="delta-pill hold">${sug.badge}</span>` : ''}
           </div>
           <div class="input-wrap">
-            <input type="number" class="set-input" id="r_${exIdx}_${sIdx}" value="${dispR}" oninput="liveEditSet(${exIdx}, ${sIdx})">
-            ${!s.done && isRepUp ? `<span class="delta-pill">${sug.badge}</span>` : ''}
+            <input type="number" class="set-input" id="r_${exIdx}_${sIdx}" value="${dispR}" ${disabledAttr} oninput="liveEditSet(${exIdx}, ${sIdx})">
+            ${!day.dayDone && !s.done && isRepUp ? `<span class="delta-pill">${sug.badge}</span>` : ''}
           </div>
-          <button class="set-check" onclick="completeSet(${exIdx}, ${sIdx})">✓</button>
+          <button class="set-check" ${disabledAttr} onclick="completeSet(${exIdx}, ${sIdx})">✓</button>
         </div>
       `;
     }).join('');
@@ -1208,12 +1193,12 @@ function renderWorkout() {
         ${rowsHtml}
         <div class="tip-wrap">
           <span class="tip-icon">// TIP</span>
-          <textarea rows="1" class="tip-input" placeholder="寫下給自己的動作提醒..." oninput="updateTip(${exIdx}, this)">${escapeHtml(ex.tip)}</textarea>
+          <textarea rows="1" class="tip-input" placeholder="寫下給自己的動作提醒..." ${day.dayDone ? 'disabled' : ''} oninput="updateTip(${exIdx}, this)">${escapeHtml(ex.tip)}</textarea>
         </div>
         <div class="card-actions">
           <div style="display:flex; gap:6px;">
-            <button class="mini-btn" onclick="addSet(${exIdx})">+ 組</button>
-            <button class="mini-btn" onclick="removeSet(${exIdx})">- 組</button>
+            <button class="mini-btn" ${day.dayDone ? 'disabled style="opacity:0.4;"' : ''} onclick="addSet(${exIdx})">+ 組</button>
+            <button class="mini-btn" ${day.dayDone ? 'disabled style="opacity:0.4;"' : ''} onclick="removeSet(${exIdx})">- 組</button>
           </div>
           ${ex.isBar ? `<button class="mini-btn" style="color:var(--accent); border-color:rgba(204,255,0,0.3);" onclick="openPlates('${ex.name}', ${maxWeightSet})">槓片 (${maxWeightSet}kg)</button>` : ''}
         </div>
@@ -1224,10 +1209,9 @@ function renderWorkout() {
   document.getElementById('workoutList').innerHTML = html;
 
   const finishBtn = document.getElementById('btnFinishDay');
-  const allSetsDone = day.exercises.every(ex => ex.sets.every(s => s.done));
-  if (day.dayDone || allSetsDone) {
+  if (day.dayDone) {
     finishBtn.className = 'finish-day-btn done-today';
-    finishBtn.innerText = `✓ 今日訓練已完成 (${day.name}・${day.title})`;
+    finishBtn.innerText = `✓ 今日訓練已完成（點擊可解鎖修改）`;
   } else {
     finishBtn.className = 'finish-day-btn';
     finishBtn.innerText = `✓ 完成今日訓練`;
@@ -1254,6 +1238,7 @@ function liveEditSet(exIdx, sIdx) {
 
 function completeSet(exIdx, sIdx) {
   const day = state.days[state.dayIdx];
+  if (day.dayDone) return;
   const ex = day.exercises[exIdx];
   const s = ex.sets[sIdx];
   const wVal = parseFloat(document.getElementById(`w_${exIdx}_${sIdx}`).value);
@@ -1262,8 +1247,6 @@ function completeSet(exIdx, sIdx) {
   if (!isNaN(wVal)) s.w = wVal;
   if (!isNaN(rVal)) s.r = rVal;
   s.done = !s.done;
-
-  day.dayDone = day.exercises.every(e => e.sets.every(st => st.done));
 
   save();
   renderDays();
@@ -1274,36 +1257,54 @@ function completeSet(exIdx, sIdx) {
   }
 }
 
-// 4. Bottom Button: Complete Today's Workout (Marks all today's sets done & locks current inputs without wiping/rolling over week)
-function completeTodayWorkout() {
+// BOTTOM BUTTON TOGGLE: Complete Today's Workout OR Unlock to Modify (Strict Lock as Requested)
+function toggleTodayWorkout() {
   const day = state.days[state.dayIdx];
-  day.warmup.done = true;
-  day.exercises.forEach((ex, exIdx) => {
-    ex.sets.forEach((s, sIdx) => {
-      const wInput = document.getElementById(`w_${exIdx}_${sIdx}`);
-      const rInput = document.getElementById(`r_${exIdx}_${sIdx}`);
-      const sug = getSetSuggestion(ex, s, state.phase);
-      const wVal = wInput ? parseFloat(wInput.value) : null;
-      const rVal = rInput ? parseInt(rInput.value) : null;
-      s.w = !isNaN(wVal) ? wVal : (s.w !== null ? s.w : sug.w);
-      s.r = !isNaN(rVal) ? rVal : (s.r !== null ? s.r : sug.r);
-      s.done = true;
+  
+  if (day.dayDone) {
+    // Unlock to modify
+    if (confirm(`要解除「${day.name}・${day.title}」的鎖定以重新修改數值嗎？`)) {
+      day.dayDone = false;
+      day.exercises.forEach(ex => {
+        ex.sets.forEach(s => {
+          s.done = false;
+        });
+      });
+      save();
+      renderAll();
+    }
+  } else {
+    // Complete and lock down completely
+    if (!confirm(`確定要完成「${day.name}・${day.title}」今日訓練並鎖定數值嗎？
+鎖定後所有重量與次數選項將無法調整，直到按下頂部「下週結算」或再次點擊底部按鈕解鎖為止。`)) return;
+    
+    day.warmup.done = true;
+    day.exercises.forEach((ex, exIdx) => {
+      ex.sets.forEach((s, sIdx) => {
+        const wInput = document.getElementById(`w_${exIdx}_${sIdx}`);
+        const rInput = document.getElementById(`r_${exIdx}_${sIdx}`);
+        const sug = getSetSuggestion(ex, s, state.phase);
+        const wVal = wInput ? parseFloat(wInput.value) : null;
+        const rVal = rInput ? parseInt(rInput.value) : null;
+        s.w = !isNaN(wVal) ? wVal : (s.w !== null ? s.w : sug.w);
+        s.r = !isNaN(rVal) ? rVal : (s.r !== null ? s.r : sug.r);
+        s.done = true;
+      });
     });
-  });
-  day.dayDone = true;
-  stopTimer();
-  save();
-  renderAll();
+    day.dayDone = true;
+    stopTimer();
+    save();
+    renderAll();
+  }
 }
 
-// 3. Top Button: Advance to Next Week (With Confirmation + Snapshot for Instant Undo)
+// TOP BUTTON: Advance to Next Week (Rolls over all completed/locked data into next week)
 function advanceNextWeek() {
   if (!confirm(`確定要結算 WEEK ${state.week} 並推進至 WEEK ${state.week + 1} 嗎？
-（若誤觸可隨時點選頂部「⤺ 返回上週」復原）`)) {
+（所有已完成的數據將成為下週上週基準，若誤觸可點選頂部「⤺ 返回上週」復原）`)) {
     return;
   }
 
-  // Save deep-copy snapshot into undoStack (keep up to 5 weeks of undo history)
   const snapshot = JSON.parse(JSON.stringify({
     week: state.week,
     days: state.days,
@@ -1325,7 +1326,7 @@ function advanceNextWeek() {
         if (s.done || s.w !== null || s.r !== null) {
           s.prevW = actualW;
           s.prevR = actualR;
-          if (s.done) completedCount++;
+          if (s.done || s.w !== null) completedCount++;
         }
         s.w = null;
         s.r = null;
@@ -1359,9 +1360,10 @@ function revertLastWeek() {
   renderAll();
 }
 
-// 2. Fix: Cycling Set Tag preserves any user-modified weight or reps!
 function cycleSetTag(exIdx, sIdx) {
-  const s = state.days[state.dayIdx].exercises[exIdx].sets[sIdx];
+  const day = state.days[state.dayIdx];
+  if (day.dayDone) return;
+  const s = day.exercises[exIdx].sets[sIdx];
   const wInput = document.getElementById(`w_${exIdx}_${sIdx}`);
   const rInput = document.getElementById(`r_${exIdx}_${sIdx}`);
 
@@ -1380,7 +1382,9 @@ function cycleSetTag(exIdx, sIdx) {
 }
 
 function addSet(exIdx) {
-  const sets = state.days[state.dayIdx].exercises[exIdx].sets;
+  const day = state.days[state.dayIdx];
+  if (day.dayDone) return;
+  const sets = day.exercises[exIdx].sets;
   const last = sets[sets.length - 1] || { tag: 'S', prevW: 20, prevR: 8 };
   sets.push({ tag: 'BACK', prevW: last.prevW, prevR: last.prevR, w: null, r: null, done: false });
   save();
@@ -1388,7 +1392,9 @@ function addSet(exIdx) {
 }
 
 function removeSet(exIdx) {
-  const sets = state.days[state.dayIdx].exercises[exIdx].sets;
+  const day = state.days[state.dayIdx];
+  if (day.dayDone) return;
+  const sets = day.exercises[exIdx].sets;
   if (sets.length > 1) {
     sets.pop();
     save();
@@ -1397,8 +1403,9 @@ function removeSet(exIdx) {
 }
 
 function toggleWarmup() {
-  const w = state.days[state.dayIdx].warmup;
-  w.done = !w.done;
+  const day = state.days[state.dayIdx];
+  if (day.dayDone) return;
+  day.warmup.done = !day.warmup.done;
   save();
   renderWorkout();
 }
