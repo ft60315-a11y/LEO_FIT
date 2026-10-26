@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>OBSIDIAN // V3.4</title>
+<title>OBSIDIAN // V3.5 (8-WEEK BLOCK)</title>
 <style>
   :root {
     --bg: #050506;
@@ -18,6 +18,7 @@
     --bulk: #ccff00;
     --cut: #00f0ff;
     --top-tag: #ff3366;
+    --deload-tag: #10b981;
     --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
     --font-mono: "SF Mono", "JetBrains Mono", "Roboto Mono", monospace;
   }
@@ -45,7 +46,7 @@
     position: sticky;
     top: 0;
     z-index: 40;
-    background: rgba(5, 5, 6, 0.92);
+    background: rgba(5, 5, 6, 0.94);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
@@ -56,13 +57,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .logo-group {
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
   }
 
   .logo-dot {
@@ -132,6 +134,33 @@
   .phase-btn.active {
     background: var(--accent);
     color: #000;
+  }
+
+  /* 8-Week Periodization Strip */
+  .period-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+  }
+
+  .period-title {
+    font-family: var(--font-mono);
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+  }
+
+  .period-desc {
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-family: var(--font-sans);
   }
 
   .macro-bar {
@@ -430,6 +459,11 @@
     color: #e4e4e7;
   }
 
+  .delta-pill.deload {
+    background: var(--deload-tag);
+    color: #000;
+  }
+
   .set-check {
     width: 42px;
     height: 38px;
@@ -685,6 +719,7 @@
       <button class="phase-btn" id="btnCut" onclick="setPhase('cut')">減脂</button>
     </div>
   </div>
+  <div class="period-bar" id="periodBar"></div>
   <div class="macro-bar" id="macroBar"></div>
 </header>
 
@@ -713,13 +748,16 @@
 
     <div class="ex-card">
       <div class="ex-top">
-        <span class="ex-name">運動科學雙重漸進模型 (Double Progression)</span>
+        <span class="ex-name">8 週板塊週期化引擎 (3:1 × 2 結構)</span>
       </div>
       <div style="font-size:0.78rem; color:var(--muted); line-height:1.65; margin-top:6px;">
-        • <b style="color:var(--accent)">原則：先求次數達標（累積訓練容量），再求提升重量（機械張力）。</b><br>
-        • <b>主項 TOP 極限組 (目標 3~5 下)</b>：上週若只舉 1~4 下，本週<b>維持原重量、目標 +1 下</b>；唯獨上週舉滿 <b>5 下</b>，本週才會自動 <b>+2.5 kg</b> 並退回 3 下。<br>
-        • <b>複合動作組 S/BACK (目標 6~8 或 8~10 下)</b>：在次數區間內每週優先 <b>+1 下</b>；只有當「該組做滿區間上限」且「全組平均達標」時，下週才升級重量並退回區間下限。<br>
-        • <b>小肌群孤立動作 (目標 12~15 下)</b>：因單次加重量比例極高，必須在原重量推進至 <b>15 下滿</b>，下週才微幅加重並退回 12 下。
+        • <b style="color:var(--accent)">科學設計：避免連續 6 週高強度導致第 5 週關節發炎，將 8 週拆為「兩波 3:1 推進浪潮」：</b><br>
+        • <b>W1-W2 蓄積期 (Accumulation)</b>：鎖定重量，專注把次數推向區間上限（+1下），最大化肌肥大總容量與肌腱適應。<br>
+        • <b>W3 強固期 (Intensification I)</b>：第一波負荷躍升！主項 TOP 與達標組升級重量，轉換高機械張力。<br>
+        • <b>W4 微減載週 (Mini-Deload)</b>：自動回退至 <b>85% 負重、次數減 2 下</b>（不覆蓋第3週巔峰紀錄），卸除前3週神經疲勞。<br>
+        • <b>W5-W6 強固推進期 (Intensification II)</b>：從第 3 週巔峰基準無縫接軌，把高重量次數推滿並再次升級負荷。<br>
+        • <b>W7 巔峰突破期 (Peak Overreach)</b>：8 週最高強度週！若上週 TOP 組達 4 下即自動 +2.5kg 挑戰 2~3 下 PR。<br>
+        • <b>W8 完整減載週 (Full Deload)</b>：自動降至 <b>75% 負重輕鬆恢復</b>，完成超量補償並開啟下一輪 8 週週期！
       </div>
     </div>
 
@@ -796,6 +834,28 @@ const DEFAULT_TIPS = {
   '反握滑輪下拉': '反握與肩同寬，身體微後傾 10 度，拉向胸口下緣榨乾背闊肌下緣',
   '2 公里節奏跑 (km / 分鐘)': '維持穩定鼻吸口吐與步頻，跑完慢走 3 分鐘收操迎接週末休息'
 };
+
+// 8-Week Mesocycle Metadata (Wave 1: W1-W4, Wave 2: W5-W8)
+function getCyclePhaseInfo(weekNum) {
+  const cWeek = ((weekNum - 1) % 8) + 1;
+  const blockNum = Math.floor((weekNum - 1) / 8) + 1;
+  const map = {
+    1: { code: 'ACC_1', name: '蓄積期 I', desc: '固定重量・推進次數累積肌肥大容量', isDeload: false, deloadRatio: 1.0 },
+    2: { code: 'ACC_2', name: '蓄積期 II', desc: '推滿次數上限・鞏固各組動作品質', isDeload: false, deloadRatio: 1.0 },
+    3: { code: 'INT_1', name: '強固期 I', desc: '第一波負荷躍升・轉換高機械張力', isDeload: false, deloadRatio: 1.0 },
+    4: { code: 'DELOAD_MINI', name: '微減載週', desc: '85% 負重主動恢復・不覆蓋W3巔峰基準', isDeload: true, deloadRatio: 0.85 },
+    5: { code: 'INT_2', name: '強固期 II', desc: '承接W3巔峰基準・推進高負重次數', isDeload: false, deloadRatio: 1.0 },
+    6: { code: 'INT_3', name: '強固突破', desc: '高強度容量推進・準備下週衝擊極限', isDeload: false, deloadRatio: 1.0 },
+    7: { code: 'PEAK', name: '巔峰突破期', desc: '8週最高強度・TOP組積極挑戰新PR', isDeload: false, deloadRatio: 1.0 },
+    8: { code: 'DELOAD_FULL', name: '完整減載週', desc: '75% 負重神經重置・迎接下一輪週期', isDeload: true, deloadRatio: 0.75 }
+  };
+  return { cWeek, blockNum, ...map[cWeek] };
+}
+
+function roundToStep(val, step) {
+  const s = step && step > 0 ? step : 2.5;
+  return Math.max(s, +(Math.round(val / s) * s).toFixed(2));
+}
 
 const DEFAULT_DATA = {
   week: 1,
@@ -1018,23 +1078,42 @@ function escapeHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// ============================================================================
+// 8-WEEK PERIODIZATION + DOUBLE PROGRESSION ENGINE
+// ============================================================================
 function getSetSuggestion(ex, s, phase) {
   const lastW = parseFloat(s.prevW) || 0;
   const lastR = parseInt(s.prevR) || 0;
   const tMax = ex.targetMax || 8;
   const tMin = ex.targetMin || Math.max(5, tMax - 3);
+  const cyc = getCyclePhaseInfo(state.week);
 
   if (ex.inc === 0) {
     return { w: lastW, r: lastR, badge: '', type: 'none' };
   }
 
+  // 1. Deload Weeks (Week 4 Mini-Deload 85% / Week 8 Full Deload 75%)
+  if (cyc.isDeload) {
+    const deloadW = roundToStep(lastW * cyc.deloadRatio, ex.inc);
+    const deloadR = s.tag === 'TOP' ? 3 : Math.max(5, tMin - 1);
+    const pctText = Math.round(cyc.deloadRatio * 100);
+    return { w: deloadW, r: deloadR, badge: `減載${pctText}%`, type: 'deload' };
+  }
+
+  // 2. Cutting Phase: Anchor Intensity
   if (phase === 'cut') {
     return { w: lastW, r: lastR, badge: '維持強度', type: 'hold' };
   }
 
+  // 3. Lean Bulk 8-Week Periodized Progression
   if (s.tag === 'TOP') {
-    if (lastR >= 5) {
-      return { w: +(lastW + ex.inc).toFixed(2), r: 3, badge: `+${ex.inc}kg`, type: 'weight' };
+    // In Peak Overreach Week (W7), push PR aggressively if hit >=4 reps last week
+    const repThreshold = (cyc.cWeek === 7) ? 4 : 5;
+    const resetRep = (cyc.cWeek === 7) ? 2 : 3;
+
+    // In Accumulation Weeks (W1, W2), prioritize rep mastery up to 5 before jumping load
+    if (lastR >= repThreshold) {
+      return { w: +(lastW + ex.inc).toFixed(2), r: resetRep, badge: `+${ex.inc}kg`, type: 'weight' };
     } else {
       return { w: lastW, r: lastR + 1, badge: '+1下', type: 'rep' };
     }
@@ -1071,10 +1150,12 @@ function getBest1RM(ex) {
 function renderHeader() {
   const root = document.documentElement;
   const isBulk = state.phase === 'bulk';
-  root.style.setProperty('--accent', isBulk ? 'var(--bulk)' : 'var(--cut)');
+  const cyc = getCyclePhaseInfo(state.week);
+
+  root.style.setProperty('--accent', cyc.isDeload ? 'var(--deload-tag)' : (isBulk ? 'var(--bulk)' : 'var(--cut)'));
   document.getElementById('btnBulk').classList.toggle('active', isBulk);
   document.getElementById('btnCut').classList.toggle('active', !isBulk);
-  document.getElementById('weekLabel').innerText = `WEEK ${state.week}`;
+  document.getElementById('weekLabel').innerText = `W${cyc.cWeek}/8`;
 
   const undoBtn = document.getElementById('btnUndoWeek');
   if (state.undoStack && state.undoStack.length > 0) {
@@ -1082,6 +1163,11 @@ function renderHeader() {
   } else {
     undoBtn.style.display = 'none';
   }
+
+  document.getElementById('periodBar').innerHTML = `
+    <span class="period-title">BLOCK ${cyc.blockNum} // W${cyc.cWeek} ${cyc.name}</span>
+    <span class="period-desc">${cyc.desc}</span>
+  `;
 
   const day = state.days[state.dayIdx];
   let kcal = isBulk ? (day.isBall ? 3300 : 3050) : (day.isBall ? 2600 : 2350);
@@ -1152,8 +1238,8 @@ function renderWorkout() {
       const isWeightUp = sug.type === 'weight';
       const isRepUp = sug.type === 'rep';
       const isHold = sug.type === 'hold';
+      const isDeload = sug.type === 'deload';
 
-      // If day is locked (dayDone), disable inputs!
       const disabledAttr = day.dayDone ? 'disabled' : '';
 
       return `
@@ -1164,6 +1250,7 @@ function renderWorkout() {
             <input type="number" step="0.5" class="set-input" id="w_${exIdx}_${sIdx}" value="${dispW}" ${disabledAttr} oninput="liveEditSet(${exIdx}, ${sIdx})">
             ${!day.dayDone && !s.done && isWeightUp ? `<span class="delta-pill pr">${sug.badge}</span>` : ''}
             ${!day.dayDone && !s.done && isHold ? `<span class="delta-pill hold">${sug.badge}</span>` : ''}
+            ${!day.dayDone && !s.done && isDeload ? `<span class="delta-pill deload">${sug.badge}</span>` : ''}
           </div>
           <div class="input-wrap">
             <input type="number" class="set-input" id="r_${exIdx}_${sIdx}" value="${dispR}" ${disabledAttr} oninput="liveEditSet(${exIdx}, ${sIdx})">
@@ -1185,7 +1272,7 @@ function renderWorkout() {
         </div>
         <div class="set-header">
           <span>組別</span>
-          <span>上週</span>
+          <span>基準</span>
           <span>${ex.inc === 0 ? '距離' : '本週 KG'}</span>
           <span>${ex.inc === 0 ? '分鐘' : '本週下數'}</span>
           <span>完成</span>
@@ -1257,12 +1344,11 @@ function completeSet(exIdx, sIdx) {
   }
 }
 
-// BOTTOM BUTTON TOGGLE: Complete Today's Workout OR Unlock to Modify (Strict Lock as Requested)
+// BOTTOM BUTTON TOGGLE: Strict Lock & Unlock on Re-click
 function toggleTodayWorkout() {
   const day = state.days[state.dayIdx];
   
   if (day.dayDone) {
-    // Unlock to modify
     if (confirm(`要解除「${day.name}・${day.title}」的鎖定以重新修改數值嗎？`)) {
       day.dayDone = false;
       day.exercises.forEach(ex => {
@@ -1274,7 +1360,6 @@ function toggleTodayWorkout() {
       renderAll();
     }
   } else {
-    // Complete and lock down completely
     if (!confirm(`確定要完成「${day.name}・${day.title}」今日訓練並鎖定數值嗎？
 鎖定後所有重量與次數選項將無法調整，直到按下頂部「下週結算」或再次點擊底部按鈕解鎖為止。`)) return;
     
@@ -1298,10 +1383,13 @@ function toggleTodayWorkout() {
   }
 }
 
-// TOP BUTTON: Advance to Next Week (Rolls over all completed/locked data into next week)
+// TOP BUTTON: Advance to Next Week (Preserves pre-deload baseline during Deload Weeks!)
 function advanceNextWeek() {
-  if (!confirm(`確定要結算 WEEK ${state.week} 並推進至 WEEK ${state.week + 1} 嗎？
-（所有已完成的數據將成為下週上週基準，若誤觸可點選頂部「⤺ 返回上週」復原）`)) {
+  const curCyc = getCyclePhaseInfo(state.week);
+  const nextCyc = getCyclePhaseInfo(state.week + 1);
+
+  if (!confirm(`確定要結算 W${curCyc.cWeek} (${curCyc.name}) 並推進至 W${nextCyc.cWeek} (${nextCyc.name}) 嗎？
+（若誤觸可隨時點選頂部「⤺ 返回上週」復原）`)) {
     return;
   }
 
@@ -1324,8 +1412,13 @@ function advanceNextWeek() {
         const actualW = s.w !== null ? s.w : sug.w;
         const actualR = s.r !== null ? s.r : sug.r;
         if (s.done || s.w !== null || s.r !== null) {
-          s.prevW = actualW;
-          s.prevR = actualR;
+          // CRITICAL SPORTS SCIENCE LOGIC:
+          // If current week was a Deload Week (W4 or W8), DO NOT overwrite prevW/prevR with lighter deload weights!
+          // Keep the pre-deload peak baseline so Week 5 or next Block Week 1 resumes from true strength!
+          if (!curCyc.isDeload) {
+            s.prevW = actualW;
+            s.prevR = actualR;
+          }
           if (s.done || s.w !== null) completedCount++;
         }
         s.w = null;
@@ -1338,6 +1431,7 @@ function advanceNextWeek() {
   const now = new Date();
   state.weekArchives.unshift({
     week: state.week,
+    phaseName: curCyc.name,
     date: `${now.getMonth()+1}/${now.getDate()}`,
     setsDone: completedCount
   });
@@ -1349,7 +1443,7 @@ function advanceNextWeek() {
 
 function revertLastWeek() {
   if (!state.undoStack || state.undoStack.length === 0) return;
-  if (!confirm(`確定要撤銷推進、返回 WEEK ${state.week - 1} 的完整訓練數據嗎？`)) return;
+  if (!confirm(`確定要撤銷推進、返回上一週的完整訓練數據嗎？`)) return;
 
   const prevSnapshot = state.undoStack.pop();
   state.week = prevSnapshot.week;
@@ -1507,7 +1601,7 @@ function renderStats() {
   } else {
     histEl.innerHTML = state.weekArchives.map(a => `
       <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #222;">
-        <span>WEEK ${a.week} (${a.date} 結算)</span>
+        <span>W${a.week} ${a.phaseName || ''} (${a.date} 結算)</span>
         <span style="color:var(--accent);">完成 ${a.setsDone} 組</span>
       </div>
     `).join('');
